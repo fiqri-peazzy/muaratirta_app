@@ -38,14 +38,14 @@ $promo_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <meta property="og:url" content="<?= BASE_URL . '/promo-detail/' . $promo['slug'] ?>">
     <meta property="og:title" content="<?= $promo['judul'] ?>">
     <meta property="og:description" content="<?= substr(strip_tags($promo['deskripsi']), 0, 160) ?>">
-    <meta property="og:image" content="<?= (isset($promo['image']) && !empty($promo['image'])) ? BASE_URL . '/assets/info/' . $promo['image'] : BASE_URL . '/assets/image/bg.jpg' ?>">
+    <meta property="og:image" content="<?= (isset($promo['image']) && !empty($promo['image'])) ? resolveImageUrl($promo['image'], 'informasi', ['assets/info']) : BASE_URL . '/assets/image/bg.jpg' ?>">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="<?= BASE_URL . '/promo-detail/' . $promo['slug'] ?>">
     <meta property="twitter:title" content="<?= $promo['judul'] ?>">
     <meta property="twitter:description" content="<?= substr(strip_tags($promo['deskripsi']), 0, 160) ?>">
-    <meta property="twitter:image" content="<?= (isset($promo['image']) && !empty($promo['image'])) ? BASE_URL . '/assets/info/' . $promo['image'] : BASE_URL . '/assets/image/bg.jpg' ?>">
+    <meta property="twitter:image" content="<?= (isset($promo['image']) && !empty($promo['image'])) ? resolveImageUrl($promo['image'], 'informasi', ['assets/info']) : BASE_URL . '/assets/image/bg.jpg' ?>">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -248,7 +248,7 @@ $promo_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <article class="pd-article">
                             <div class="pd-image-wrap">
                                 <?php if (isset($promo['image']) && !empty($promo['image'])) : ?>
-                                    <img src="<?php echo BASE_URL . '/assets/info/' . $promo['image'] ?>" alt="<?= htmlspecialchars($promo['judul']) ?>" class="pd-featured-img">
+                                    <img src="<?php echo resolveImageUrl($promo['image'], 'informasi', ['assets/info']) ?>" alt="<?= htmlspecialchars($promo['judul']) ?>" class="pd-featured-img">
                                 <?php else : ?>
                                     <img src="<?php echo BASE_URL . '/assets/image/bg.jpg' ?>" alt="Muara Tirta" class="pd-featured-img">
                                 <?php endif; ?>
@@ -302,7 +302,7 @@ $promo_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 <?php foreach ($promo_terbaru as $p) : ?>
                                     <a href="<?php echo BASE_URL . '/promo-detail/' . $p['slug'] ?>" class="pd-recent-item">
                                         <?php if (isset($p['image']) && !empty($p['image'])) : ?>
-                                            <img src="<?php echo BASE_URL . '/assets/info/' . $p['image'] ?>" alt="" class="pd-recent-thumb">
+                                            <img src="<?php echo resolveImageUrl($p['image'], 'informasi', ['assets/info']) ?>" alt="" class="pd-recent-thumb">
                                         <?php else : ?>
                                             <img src="<?php echo BASE_URL . '/assets/image/bg.jpg' ?>" alt="" class="pd-recent-thumb">
                                         <?php endif; ?>

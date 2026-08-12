@@ -34,7 +34,7 @@ $berita_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <meta property="og:type" content="article">
     <meta property="og:description" content="<?= substr(strip_tags($berita['deskripsi']), 0, 150) ?>">
     <meta property="og:image"
-        content="<?= (isset($berita['image']) && !empty($berita['image'])) ? BASE_URL . '/assets/info/' . $berita['image'] : '' ?>">
+        content="<?= (isset($berita['image']) && !empty($berita['image'])) ? resolveImageUrl($berita['image'], 'informasi', ['assets/info']) : '' ?>">
     <meta property="og:image:width" content="1260" />
     <meta property="og:image:height" content="469" />
     <meta property="og:site_name" content="PERUMDA MUARA TIRTA KOTA GORONTALO">
@@ -45,7 +45,7 @@ $berita_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <meta name="twitter:title" content="<?= htmlspecialchars($berita['judul']) ?>">
     <meta name="twitter:description" content="<?= substr(strip_tags($berita['deskripsi']), 0, 150) ?>">
     <meta name="twitter:image"
-        content="<?= (isset($berita['image']) && !empty($berita['image'])) ? BASE_URL . '/assets/info/' . $berita['image'] : '' ?>">
+        content="<?= (isset($berita['image']) && !empty($berita['image'])) ? resolveImageUrl($berita['image'], 'informasi', ['assets/info']) : '' ?>">
     <meta name="twitter:url" content="<?= BASE_URL . '/detail-berita/' . $berita['slug'] ?>">
 
     <title><?= htmlspecialchars($berita['judul']) ?> | Muara Tirta Kota Gorontalo</title>
@@ -558,9 +558,9 @@ $berita_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                         <article class="berita-main-article">
                             <!-- Article Image -->
                             <div class="berita-article-image">
-                                <a href="<?= BASE_URL . '/assets/info/' . $berita['image'] ?>"
+                                <a href="<?= resolveImageUrl($berita['image'], 'informasi', ['assets/info']) ?>"
                                     data-lightbox="berita-image">
-                                    <img src="<?= BASE_URL . '/assets/info/' . $berita['image'] ?>"
+                                    <img src="<?= resolveImageUrl($berita['image'], 'informasi', ['assets/info']) ?>"
                                         alt="<?= htmlspecialchars($berita['judul']) ?>" loading="lazy">
                                 </a>
                                 <div class="berita-image-overlay"></div>

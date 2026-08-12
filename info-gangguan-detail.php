@@ -34,7 +34,7 @@ $info_gangguan_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <meta property="og:type" content="article">
     <meta property="og:description" content="<?= substr(strip_tags($info_gangguan['deskripsi']), 0, 150) ?>">
     <meta property="og:image"
-        content="<?= (isset($info_gangguan['image']) && !empty($info_gangguan['image'])) ? BASE_URL . '/assets/info/' . $info_gangguan['image'] : BASE_URL . '/assets/image/info-gangguan.jpg' ?>">
+        content="<?= (isset($info_gangguan['image']) && !empty($info_gangguan['image'])) ? resolveImageUrl($info_gangguan['image'], 'informasi', ['assets/info']) : BASE_URL . '/assets/image/info-gangguan.jpg' ?>">
     <meta property="og:image:width" content="1260" />
     <meta property="og:image:height" content="469" />
     <meta property="og:site_name" content="PERUMDA MUARA TIRTA KOTA GORONTALO">
@@ -45,7 +45,7 @@ $info_gangguan_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     <meta name="twitter:title" content="<?= htmlspecialchars($info_gangguan['judul']) ?>">
     <meta name="twitter:description" content="<?= substr(strip_tags($info_gangguan['deskripsi']), 0, 150) ?>">
     <meta name="twitter:image"
-        content="<?= (isset($info_gangguan['image']) && !empty($info_gangguan['image'])) ? BASE_URL . '/assets/info/' . $info_gangguan['image'] : BASE_URL . '/assets/image/info-gangguan.jpg' ?>">
+        content="<?= (isset($info_gangguan['image']) && !empty($info_gangguan['image'])) ? resolveImageUrl($info_gangguan['image'], 'informasi', ['assets/info']) : BASE_URL . '/assets/image/info-gangguan.jpg' ?>">
     <meta name="twitter:url" content="<?= BASE_URL . '/info-gangguan-detail/' . $info_gangguan['slug'] ?>">
 
     <title>Info Gangguan - <?= htmlspecialchars($info_gangguan['judul']) ?> | Muara Tirta Kota Gorontalo</title>
@@ -810,9 +810,9 @@ $info_gangguan_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                 </div>
 
                                 <?php if (isset($info_gangguan['image']) && !empty($info_gangguan['image'])): ?>
-                                <a href="<?= BASE_URL . '/assets/info/' . $info_gangguan['image'] ?>"
+                                <a href="<?= resolveImageUrl($info_gangguan['image'], 'informasi', ['assets/info']) ?>"
                                     data-lightbox="gangguan-image">
-                                    <img src="<?= BASE_URL . '/assets/info/' . $info_gangguan['image'] ?>"
+                                    <img src="<?= resolveImageUrl($info_gangguan['image'], 'informasi', ['assets/info']) ?>"
                                         alt="<?= htmlspecialchars($info_gangguan['judul']) ?>" loading="lazy">
                                 </a>
                                 <?php else: ?>

@@ -1,6 +1,7 @@
 <?php
 
 include(ROOT_PATH . '/app/db/db.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 
 $id = '';
@@ -80,14 +81,12 @@ function resizeImage($source, $destination, $width, $height)
 if (isset($_POST['add-info'])) {
 
     if (!empty($_FILES['image']['name'])) {
-        $image = time() . "_" . $_FILES['image']['name'];
-        $destination = ROOT_PATH . "/assets/info/" . $image;
+        $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $image = time() . "_" . uniqid() . "." . $extension;
 
-        $results = move_uploaded_file($_FILES['image']['tmp_name'], $destination);
+        $results = uploadToR2($_FILES['image']['tmp_name'], 'informasi', $image);
 
         if ($results) {
-
-            // resizeImage($destination, $destination, 600, 800);
             $_POST['image'] = $image;
         }
     }
@@ -98,11 +97,17 @@ if (isset($_POST['add-info'])) {
     $tag = $_POST['tag'];
     $deskripsi = $_POST['deskripsi'];
     $author = getUser()['nm_lengkap'];
-    $img = $_POST['image'];
+    $img = $_POST['image'] ?? '';
 
     if ($judul || $judul !== '') {
-        $sql = "INSERT INTO informasi (judul,slug,deskripsi,tag,image,author) VALUES('$judul','$slug','$deskripsi','$tag','$img','$author')";
-        $conn->query($sql);
+        create('informasi', [
+            'judul' => $judul,
+            'slug' => $slug,
+            'deskripsi' => $deskripsi,
+            'tag' => $tag,
+            'image' => $img,
+            'author' => $author,
+        ]);
         $_SESSION['message'] = 'Berhasil Tambah data';
         $_SESSION['type'] = 'success';
         header('Location:' . BASE_URL . '/admin/informasi.php');
@@ -119,19 +124,20 @@ if (isset($_POST['update-info'])) {
 
     if (!empty($_FILES['image']['name'])) {
 
-
         $info_id = selectOne('informasi', ['id' => $id]);
 
+        $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+        $image = time() . "_" . uniqid() . "." . $extension;
 
-        $image = time() . "_" . $_FILES['image']['name'];
-        $destination = ROOT_PATH . "/assets/info/" . $image;
-        $path = ROOT_PATH . '/assets/info/';
-
-        $results = move_uploaded_file($_FILES['image']['tmp_name'], $destination);
+        $results = uploadToR2($_FILES['image']['tmp_name'], 'informasi', $image);
 
         if ($results) {
-            if ($info_id['image'] !== null && file_exists($path . $info_id['image'])) {
-                unlink($path . $info_id['image']);
+            if (!empty($info_id['image'])) {
+                $legacyPath = ROOT_PATH . '/assets/info/' . $info_id['image'];
+                if (file_exists($legacyPath)) {
+                    unlink($legacyPath);
+                }
+                deleteFromR2('informasi', $info_id['image']);
             }
 
             $_POST['image'] = $image;
@@ -147,12 +153,18 @@ if (isset($_POST['update-info'])) {
     $tag = $_POST['tag'];
     $deskripsi = $_POST['deskripsi'];
     $author = getUser()['nm_lengkap'];
-    $img = $_POST['image'];
+    $img = $_POST['image'] ?? '';
 
     if (!empty($judul) || $judul !== '') {
 
-        $sql = "UPDATE informasi SET judul='$judul',slug='$slug', tag='$tag',deskripsi='$deskripsi',author='$author',image='$img' WHERE id=$id";
-        $conn->query($sql);
+        update('informasi', $id, [
+            'judul' => $judul,
+            'slug' => $slug,
+            'tag' => $tag,
+            'deskripsi' => $deskripsi,
+            'author' => $author,
+            'image' => $img,
+        ]);
         $_SESSION['message'] = 'Berhasil Update data';
         $_SESSION['type'] = 'success';
         header('Location:' . BASE_URL . '/admin/informasi.php');
@@ -166,10 +178,13 @@ if (isset($_POST['update-info'])) {
 
 if (isset($_GET['hapus'])) {
 
-    $path = ROOT_PATH . '/assets/info/';
     $info_id = selectOne('informasi', ['id' => $_GET['hapus']]);
-    if ($info_id['image'] !== null && file_exists($path . $info_id['image'])) {
-        unlink($path . $info_id['image']);
+    if (!empty($info_id['image'])) {
+        $legacyPath = ROOT_PATH . '/assets/info/' . $info_id['image'];
+        if (file_exists($legacyPath)) {
+            unlink($legacyPath);
+        }
+        deleteFromR2('informasi', $info_id['image']);
     }
     $count = deleteF('informasi', $_GET['hapus']);
 

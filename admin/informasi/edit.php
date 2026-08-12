@@ -132,7 +132,7 @@ if (empty($_GET['id'])) {
                     <div class="form-group row" style="height:500px;width:500px;">
                         <?php if (!empty($informasi['image'])) : ?>
 
-                        <img src="<?php echo BASE_URL . "/assets/info/" .  $informasi['image']; ?>" id="frame"
+                        <img src="<?php echo resolveImageUrl($informasi['image'], 'informasi', ['assets/info']); ?>" id="frame"
                             alt="current_image" class="img-fluid mh-100">
                         <?php else : ?>
                         <img src="" id="frame" alt="" class="img-fluid mh-100">

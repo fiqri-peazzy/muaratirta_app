@@ -3,13 +3,15 @@ include("path.php");
 include(ROOT_PATH . '/app/controllers/users.php');
 if (isset($_GET['search'])) {
     $search = $_GET['search'];
-    $sql = "SELECT * FROM informasi WHERE tag='Berita' AND judul LIKE '%$search%' OR deskripsi LIKE '%$search%'";
+    $sql = "SELECT * FROM informasi WHERE tag='Berita' AND (judul LIKE ? OR deskripsi LIKE ?)";
     $stmt = $conn->prepare($sql);
+    $like = '%' . $search . '%';
+    $stmt->bind_param('ss', $like, $like);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $all_berita = $result->fetch_all(MYSQLI_ASSOC);
-        $page_header = 'Hasil Pencarian Untuk ' . $search . '...';
+        $page_header = 'Hasil Pencarian Untuk ' . htmlspecialchars($search) . '...';
         $itemsPerPage = 6;
         $totalItems = count($all_berita);
         $totalPages = ceil($totalItems / $itemsPerPage);
@@ -18,7 +20,7 @@ if (isset($_GET['search'])) {
         $paginatedBerita = array_slice($all_berita, $offset, $itemsPerPage);
     } else {
         $all_berita = array();
-        $page_header = 'Tidak Ada Hasil Pencarian Untuk ' . $search . '...';
+        $page_header = 'Tidak Ada Hasil Pencarian Untuk ' . htmlspecialchars($search) . '...';
     }
 } else {
     $all_berita = selectAll('informasi', ['tag' => 'Berita'], 'tanggal_buat');
@@ -466,7 +468,7 @@ if (isset($_GET['search'])) {
                     <?php foreach ($paginatedBerita as $berita) : ?>
                     <article class="br-card">
                         <div class="br-card-image">
-                            <img src="<?php echo BASE_URL . '/assets/info/' . $berita['image'] ?>"
+                            <img src="<?php echo resolveImageUrl($berita['image'], 'informasi', ['assets/info']) ?>"
                                 alt="<?php echo htmlspecialchars($berita['judul']) ?>">
                             <span class="br-date-badge">
                                 <?php echo date('d M Y', strtotime($berita['tanggal_buat'])) ?>

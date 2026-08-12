@@ -92,12 +92,9 @@ $data = [
     'alamat' => $alamat,
     'no_hp' => $no_hp,
     'isi_pengaduan' => $isi_pengaduan,
-    'status' => '0' // Status default: belum diproses
+    'status' => '0', // Status default: belum diproses
+    'foto' => $foto ?? '' // kolom foto NOT NULL tanpa default di DB
 ];
-
-if ($foto) {
-    $data['foto'] = $foto;
-}
 
 $insertId = create('pengaduan', $data);
 

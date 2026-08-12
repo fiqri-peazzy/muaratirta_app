@@ -237,7 +237,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                             <div class="modern-info-card">
                                 <div class="modern-info-image">
                                     <?php if (isset($i['image']) && !empty($i['image'])) : ?>
-                                    <img src="<?= BASE_URL . '/assets/info/' . $i['image'] ?>"
+                                    <img src="<?= resolveImageUrl($i['image'], 'informasi', ['assets/info']) ?>"
                                         alt="<?= htmlspecialchars($i['judul']) ?>">
                                     <?php else : ?>
                                     <img src="<?= BASE_URL . '/assets/image/info-gangguan.jpg' ?>" alt="Info Gangguan">
@@ -297,7 +297,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                         <div class="swiper-slide">
                             <article class="modern-berita-card">
                                 <div class="modern-berita-image">
-                                    <img src="<?= BASE_URL . '/assets/info/' . $i['image'] ?>"
+                                    <img src="<?= resolveImageUrl($i['image'], 'informasi', ['assets/info']) ?>"
                                         alt="<?= htmlspecialchars($i['judul']) ?>">
                                     <div class="modern-berita-date">
                                         <i class="bi bi-calendar3"></i>

@@ -226,7 +226,7 @@ $page_header = 'Informasi Gangguan';
                         <a href="<?php echo BASE_URL . '/info-gangguan-detail/' . $i['slug'] ?>" class="ig-card">
                             <div class="ig-card-image">
                                 <?php if (isset($i['image']) && !empty($i['image'])) : ?>
-                                    <img src="<?php echo BASE_URL . '/assets/info/' . $i['image'] ?>" alt="<?php echo htmlspecialchars($i['judul']) ?>">
+                                    <img src="<?php echo resolveImageUrl($i['image'], 'informasi', ['assets/info']) ?>" alt="<?php echo htmlspecialchars($i['judul']) ?>">
                                 <?php else : ?>
                                     <img src="<?php echo BASE_URL . '/assets/image/no-images.png' ?>" alt="Info Gangguan">
                                 <?php endif; ?>

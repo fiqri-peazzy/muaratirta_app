@@ -197,7 +197,7 @@ $page_header = 'Penawaran Spesial & Promo';
                         <a href="<?php echo BASE_URL . '/promo-detail/' . $i['slug'] ?>" class="pr-card">
                             <div class="pr-card-image">
                                 <?php if (isset($i['image']) && !empty($i['image'])) : ?>
-                                    <img src="<?php echo BASE_URL . '/assets/info/' . $i['image'] ?>" alt="<?php echo htmlspecialchars($i['judul']) ?>">
+                                    <img src="<?php echo resolveImageUrl($i['image'], 'informasi', ['assets/info']) ?>" alt="<?php echo htmlspecialchars($i['judul']) ?>">
                                 <?php else : ?>
                                     <img src="<?php echo BASE_URL . '/assets/image/info-gangguan.jpg' ?>" alt="Promo Muara Tirta">
                                 <?php endif; ?>
