@@ -1,0 +1,30 @@
+[10-Jul-2026 00:51:54 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[10-Jul-2026 00:51:58 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[10-Jul-2026 00:55:41 UTC] PHP Warning:  unlink(/home/u1369127/public_html/assets/keluhan/): Is a directory in /home/u1369127/public_html/admin/pengaduan/hapus-keluhan.php on line 9
+[10-Jul-2026 00:55:51 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[10-Jul-2026 00:58:05 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[10-Jul-2026 00:58:17 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[10-Jul-2026 00:58:54 UTC] PHP Warning:  unlink(/home/u1369127/public_html/assets/keluhan/): Is a directory in /home/u1369127/public_html/admin/pengaduan/hapus-keluhan.php on line 9
+[10-Jul-2026 00:59:04 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[28-Jul-2026 06:19:08 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[28-Jul-2026 06:20:08 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[28-Jul-2026 06:21:19 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[28-Jul-2026 06:21:49 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[28-Jul-2026 06:22:02 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[28-Jul-2026 06:22:13 UTC] PHP Notice:  Undefined variable: newStatus in /home/u1369127/public_html/admin/pengaduan/update-keluhan.php on line 14
+[12-Aug-2026 07:32:05 Asia/Jakarta] PHP Fatal error:  Uncaught Spipu\Html2Pdf\Exception\ImageException: Unable to get the size of the image [https://muaratirta.co.id/assets/keluhan/pengaduan_1786001354_6a7437cacd1ba.jpg] in /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php:1527
+Stack trace:
+#0 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(5783): Spipu\Html2Pdf\Html2Pdf->_drawImage('https://muarati...', false)
+#1 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1445): Spipu\Html2Pdf\Html2Pdf->_tag_open_IMG(Array)
+#2 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1413): Spipu\Html2Pdf\Html2Pdf->_executeAction(Object(Spipu\Html2Pdf\Parsing\Node))
+#3 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(5603): Spipu\Html2Pdf\Html2Pdf->_makeHTMLcode()
+#4 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1445): Spipu\Html2Pdf\Html2Pdf->_tag_open_TD(Array)
+#5 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1399): Spipu\Html2Pdf\Html2Pdf->_executeAction( in /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php on line 1527
+[12-Aug-2026 07:32:24 Asia/Jakarta] PHP Fatal error:  Uncaught Spipu\Html2Pdf\Exception\ImageException: Unable to get the size of the image [https://muaratirta.co.id/assets/keluhan/pengaduan_1785745692_6a70511c90a77.jpg] in /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php:1527
+Stack trace:
+#0 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(5783): Spipu\Html2Pdf\Html2Pdf->_drawImage('https://muarati...', false)
+#1 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1445): Spipu\Html2Pdf\Html2Pdf->_tag_open_IMG(Array)
+#2 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1413): Spipu\Html2Pdf\Html2Pdf->_executeAction(Object(Spipu\Html2Pdf\Parsing\Node))
+#3 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(5603): Spipu\Html2Pdf\Html2Pdf->_makeHTMLcode()
+#4 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1445): Spipu\Html2Pdf\Html2Pdf->_tag_open_TD(Array)
+#5 /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php(1399): Spipu\Html2Pdf\Html2Pdf->_executeAction( in /home/u1369127/public_html/vendor/spipu/html2pdf/src/Html2Pdf.php on line 1527

@@ -1,0 +1,7 @@
+<?php
+include('path.php');
+session_start();
+unset($_SESSION['id']);
+session_destroy();
+
+header('Location:' . BASE_URL . '/');

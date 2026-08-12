@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+# RewriteBase /muaratirta_app/
+# Handle requests with any slug (without .php extension)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([a-zA-Z0-9-]+)/([a-zA-Z0-9-]+)$ $1.php?slug=$2 [L,QSA]
+
+# Handle requests without slug (with .php extension)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([a-zA-Z0-9-]+)$ $1.php [L,QSA]
+
+# Fallback to handle requests for files with .php extension
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([a-zA-Z0-9-]+)$ $1.php [L,QSA]
+
+</IfModule>

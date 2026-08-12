@@ -1,0 +1,897 @@
+/* ========================================
+   PDAM MUARA TIRTA - CEK TAGIHAN MODERN
+   Enhanced Bill Checking Page
+   ======================================== */
+
+:root {
+    --tagihan-primary: #0D6EFD;
+    --tagihan-primary-dark: #0B5ED7;
+    --tagihan-secondary: #0DCAF0;
+    --tagihan-success: #198754;
+    --tagihan-warning: #FFC107;
+    --tagihan-danger: #DC3545;
+    --tagihan-dark: #1a2332;
+    --tagihan-light: #F8F9FA;
+    --tagihan-white: #FFFFFF;
+    --tagihan-text: #2C3E50;
+    --tagihan-muted: #6C757D;
+    --tagihan-shadow-sm: 0 2px 12px rgba(13, 110, 253, 0.1);
+    --tagihan-shadow-md: 0 4px 20px rgba(13, 110, 253, 0.15);
+    --tagihan-shadow-lg: 0 8px 32px rgba(13, 110, 253, 0.2);
+    --tagihan-radius: 20px;
+    --tagihan-transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   SEARCH FORM SECTION
+   ======================================== */
+.tagihan-search-wrapper {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-radius: var(--tagihan-radius);
+    padding: 60px 40px;
+    margin-bottom: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 800px;
+    /* TAMBAHAN: Batasi lebar maksimal */
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--tagihan-shadow-md);
+}
+
+.tagihan-search-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    animation: tagihan-rotate 20s linear infinite;
+}
+
+@keyframes tagihan-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.tagihan-search-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--tagihan-primary) 0%, var(--tagihan-secondary) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 24px rgba(13, 110, 253, 0.3);
+}
+
+.tagihan-search-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.tagihan-search-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--tagihan-text);
+    text-align: center !important;
+    margin-bottom: 12px;
+}
+
+.tagihan-search-subtitle {
+    font-size: 1rem;
+    color: var(--tagihan-muted);
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.tagihan-form-group {
+    position: relative;
+    max-width: 600px;
+    /* UBAH: Dari 500px jadi 600px */
+    margin: 0 auto;
+}
+
+.tagihan-input {
+    width: 100%;
+    padding: 18px 24px;
+    padding-right: 160px;
+    /* UBAH: Beri ruang lebih untuk tombol */
+    border: 3px solid transparent;
+    border-radius: 50px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--tagihan-text);
+    background: white;
+    box-shadow: var(--tagihan-shadow-sm);
+    transition: var(--tagihan-transition);
+    outline: none;
+}
+
+.tagihan-input::placeholder {
+    color: var(--tagihan-muted);
+    font-weight: 500;
+}
+
+.tagihan-input:focus {
+    border-color: var(--tagihan-primary);
+    box-shadow: 0 4px 24px rgba(13, 110, 253, 0.2);
+    transform: translateY(-2px);
+}
+
+.tagihan-input-icon {
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--tagihan-primary);
+    font-size: 1.25rem;
+    pointer-events: none;
+}
+
+.tagihan-btn-submit {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 12px 28px;
+    /* UBAH: Kurangi padding horizontal */
+    background: linear-gradient(135deg, var(--tagihan-primary) 0%, var(--tagihan-secondary) 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    /* UBAH: Sedikit lebih kecil */
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--tagihan-transition);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    white-space: nowrap;
+}
+
+.tagihan-btn-submit:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+}
+
+.tagihan-btn-submit:active {
+    transform: translateY(-50%) scale(0.98);
+}
+
+/* Icon dalam button */
+.tagihan-btn-submit i {
+    margin-right: 6px;
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+    .tagihan-search-wrapper {
+        max-width: 100%;
+        padding: 50px 30px;
+    }
+
+    .tagihan-form-group {
+        max-width: 100%;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .tagihan-search-wrapper {
+        padding: 40px 24px;
+    }
+
+    .tagihan-input {
+        padding: 16px 20px;
+        padding-right: 20px;
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .tagihan-btn-submit {
+        position: relative;
+        right: 0;
+        top: 0;
+        transform: none;
+        width: 100%;
+        padding: 14px 32px;
+        font-size: 1rem;
+    }
+
+    .tagihan-btn-submit:hover {
+        transform: none;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 576px) {
+    .tagihan-search-wrapper {
+        padding: 30px 20px;
+    }
+
+    .tagihan-search-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .tagihan-search-icon i {
+        font-size: 2rem;
+    }
+
+    .tagihan-search-title {
+        font-size: 1.5rem;
+    }
+
+    .tagihan-search-subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+/* ========================================
+   RESULT CARD
+   ======================================== */
+.tagihan-result-card {
+    background: white;
+    border-radius: var(--tagihan-radius);
+    padding: 0;
+    box-shadow: var(--tagihan-shadow-md);
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.tagihan-card-header {
+    background: linear-gradient(135deg, var(--tagihan-primary) 0%, var(--tagihan-secondary) 100%);
+    padding: 32px;
+    color: white;
+    position: relative;
+}
+
+.tagihan-card-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+.tagihan-customer-info {
+    display: grid;
+    gap: 16px;
+}
+
+.tagihan-info-row {
+    display: flex;
+    align-items: start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tagihan-info-row:last-child {
+    border-bottom: none;
+}
+
+.tagihan-info-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    opacity: 0.9;
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tagihan-info-label i {
+    font-size: 1.125rem;
+}
+
+.tagihan-info-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    flex: 1;
+}
+
+/* Foto Rumah Link */
+.tagihan-foto-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: var(--tagihan-transition);
+    backdrop-filter: blur(10px);
+    margin-top: 8px;
+}
+
+.tagihan-foto-link:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateX(4px);
+    color: white;
+}
+
+.tagihan-foto-link i {
+    font-size: 1rem;
+}
+
+/* ========================================
+   BILLS TABLE
+   ======================================== */
+.tagihan-card-body {
+    padding: 32px;
+}
+
+.tagihan-section-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--tagihan-text);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--tagihan-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tagihan-section-title i {
+    color: var(--tagihan-primary);
+    font-size: 1.5rem;
+}
+
+.tagihan-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: var(--tagihan-shadow-sm);
+}
+
+.tagihan-table thead {
+    background: linear-gradient(135deg, var(--tagihan-primary) 0%, var(--tagihan-secondary) 100%);
+    color: white;
+}
+
+.tagihan-table thead th {
+    padding: 16px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tagihan-table tbody tr {
+    background: white;
+    transition: var(--tagihan-transition);
+}
+
+.tagihan-table tbody tr:nth-child(even) {
+    background: var(--tagihan-light);
+}
+
+.tagihan-table tbody tr:hover {
+    background: #E3F2FD;
+    transform: scale(1.01);
+}
+
+.tagihan-table tbody td {
+    padding: 16px;
+    text-align: center;
+    color: var(--tagihan-text);
+    font-size: 1rem;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.tagihan-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Total Row */
+.tagihan-table .tagihan-total-row {
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
+    font-weight: 800;
+    font-size: 1.125rem;
+}
+
+.tagihan-table .tagihan-total-row:hover {
+    transform: none;
+}
+
+.tagihan-table .tagihan-total-row td {
+    border-bottom: none;
+    color: var(--tagihan-primary);
+    padding: 20px 16px;
+}
+
+/* ========================================
+   ALERT BOX
+   ======================================== */
+.tagihan-alert-box {
+    background: linear-gradient(135deg, #FFF3CD 0%, #FFE69C 100%);
+    border-left: 5px solid var(--tagihan-warning);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 32px;
+    box-shadow: var(--tagihan-shadow-sm);
+}
+
+.tagihan-alert-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.tagihan-alert-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--tagihan-warning);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.tagihan-alert-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #856404;
+    margin: 0;
+}
+
+.tagihan-alert-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tagihan-alert-item {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+    padding: 12px 0;
+    color: #856404;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.tagihan-alert-item i {
+    color: var(--tagihan-success);
+    font-size: 1.125rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.tagihan-whatsapp-box {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: var(--tagihan-shadow-sm);
+}
+
+.tagihan-whatsapp-label {
+    font-weight: 700;
+    color: var(--tagihan-text);
+    margin: 0;
+}
+
+.tagihan-btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #25D366;
+    color: white;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    transition: var(--tagihan-transition);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.tagihan-btn-whatsapp:hover {
+    background: #20BA5A;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    color: white;
+}
+
+.tagihan-btn-whatsapp i {
+    font-size: 1.25rem;
+}
+
+/* ========================================
+   EMPTY STATE
+   ======================================== */
+.tagihan-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.tagihan-empty-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.tagihan-empty-icon i {
+    font-size: 4rem;
+    color: var(--tagihan-primary);
+}
+
+.tagihan-empty-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--tagihan-text);
+    margin-bottom: 12px;
+}
+
+.tagihan-empty-text {
+    font-size: 1rem;
+    color: var(--tagihan-muted);
+    margin-bottom: 24px;
+}
+
+/* Foto Preview untuk Empty State */
+.tagihan-foto-preview-box {
+    background: var(--tagihan-light);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tagihan-foto-preview-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tagihan-text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tagihan-foto-preview-title i {
+    color: var(--tagihan-primary);
+}
+
+/* ========================================
+   MODAL FOTO RUMAH
+   ======================================== */
+.tagihan-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    animation: tagihan-fadeIn 0.3s ease;
+}
+
+.tagihan-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes tagihan-fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.tagihan-modal-content {
+    background: white;
+    border-radius: var(--tagihan-radius);
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    animation: tagihan-scaleIn 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes tagihan-scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.tagihan-modal-header {
+    background: linear-gradient(135deg, var(--tagihan-primary) 0%, var(--tagihan-secondary) 100%);
+    padding: 24px 32px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tagihan-modal-title {
+    font-size: 1.375rem;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tagihan-modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--tagihan-transition);
+}
+
+.tagihan-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.tagihan-modal-body {
+    padding: 32px;
+    max-height: calc(90vh - 100px);
+    overflow-y: auto;
+}
+
+.tagihan-foto-container {
+    text-align: center;
+}
+
+.tagihan-foto-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: var(--tagihan-shadow-md);
+}
+
+.tagihan-foto-info {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--tagihan-light);
+    border-radius: 12px;
+    text-align: left;
+}
+
+.tagihan-foto-info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.tagihan-foto-info-item:last-child {
+    border-bottom: none;
+}
+
+.tagihan-foto-info-label {
+    font-weight: 600;
+    color: var(--tagihan-muted);
+    min-width: 120px;
+}
+
+.tagihan-foto-info-value {
+    font-weight: 700;
+    color: var(--tagihan-text);
+}
+
+/* Loading State */
+.tagihan-loading {
+    text-align: center;
+    padding: 40px;
+}
+
+.tagihan-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--tagihan-light);
+    border-top-color: var(--tagihan-primary);
+    border-radius: 50%;
+    animation: tagihan-spin 1s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes tagihan-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.tagihan-loading-text {
+    color: var(--tagihan-muted);
+    font-weight: 600;
+}
+
+/* Error State */
+.tagihan-error {
+    text-align: center;
+    padding: 40px;
+}
+
+.tagihan-error-icon {
+    width: 80px;
+    height: 80px;
+    background: #FFE6E6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.tagihan-error-icon i {
+    font-size: 2.5rem;
+    color: var(--tagihan-danger);
+}
+
+.tagihan-error-text {
+    color: var(--tagihan-text);
+    font-weight: 600;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+    .tagihan-search-wrapper {
+        padding: 40px 24px;
+    }
+
+    .tagihan-input {
+        padding: 16px 20px;
+        padding-right: 20px;
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .tagihan-btn-submit {
+        position: relative;
+        right: 0;
+        top: 0;
+        transform: none;
+        width: 100%;
+        padding: 14px 32px;
+    }
+
+    .tagihan-info-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tagihan-info-label {
+        min-width: auto;
+    }
+
+    .tagihan-table {
+        font-size: 0.875rem;
+    }
+
+    .tagihan-table thead th,
+    .tagihan-table tbody td {
+        padding: 12px 8px;
+    }
+
+    .tagihan-card-header,
+    .tagihan-card-body {
+        padding: 24px 20px;
+    }
+
+    .tagihan-whatsapp-box {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .tagihan-btn-whatsapp {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tagihan-modal-content {
+        width: 95%;
+    }
+
+    .tagihan-modal-header {
+        padding: 20px 24px;
+    }
+
+    .tagihan-modal-body {
+        padding: 24px 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .tagihan-search-title {
+        font-size: 1.5rem;
+    }
+
+    .tagihan-section-title {
+        font-size: 1.125rem;
+    }
+
+    .tagihan-table {
+        font-size: 0.8125rem;
+    }
+
+    .tagihan-foto-info-label {
+        min-width: 100px;
+        font-size: 0.875rem;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+
+    .tagihan-search-wrapper,
+    .tagihan-alert-box,
+    .tagihan-btn-whatsapp,
+    .tagihan-foto-link {
+        display: none;
+    }
+
+    .tagihan-result-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .tagihan-card-header {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

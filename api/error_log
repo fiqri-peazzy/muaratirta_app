@@ -1,0 +1,7 @@
+[13-Jan-2026 16:36:47 UTC] PHP Parse error:  syntax error, unexpected '<', expecting end of file in /home/u1369127/public_html/api/chat-handler.php on line 2
+[15-Jun-2026 00:21:23 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): No such file or directory in /home/u1369127/public_html/app/db/conn.php on line 16
+[03-Jul-2026 01:16:35 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): No such file or directory in /home/u1369127/public_html/app/db/conn.php on line 16
+[03-Jul-2026 01:16:43 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): No such file or directory in /home/u1369127/public_html/app/db/conn.php on line 16
+[21-Jul-2026 03:13:34 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): No such file or directory in /home/u1369127/public_html/app/db/conn.php on line 16
+[21-Jul-2026 03:13:36 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): No such file or directory in /home/u1369127/public_html/app/db/conn.php on line 16
+[21-Jul-2026 03:13:39 UTC] PHP Warning:  mysqli::__construct(): (HY000/2002): No such file or directory in /home/u1369127/public_html/app/db/conn.php on line 16
