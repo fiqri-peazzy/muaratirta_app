@@ -1,0 +1,43 @@
+# Konfigurasi & Environment (Kredensial)
+.env
+.env.backup
+app/db/conn.php
+
+# Vendor / Dependencies (Sebaiknya gunakan composer.json untuk install di server)
+/vendor/
+composer.lock
+
+# Data & Uploads User (File dinamis)
+/assets/daftar-baru/
+/assets/info/
+/assets/keluhan/
+/assets/profile-pict/
+/assets/staff/
+/image/pengaduan/
+/uploads/
+/admin/src/plugins/*/dist/ 
+
+# Log Files (Pesan error/debug sistem)
+error_log
+*/error_log
+*/*/error_log
+debug_payload.json
+debug_response.json
+*.log
+
+# File Sistem Operasi & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Backup & Arsip Temporer
+*.bak
+*.tmp
+*.zip
+*.tar.gz

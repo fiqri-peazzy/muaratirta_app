@@ -1,5 +1,0 @@
-[12-Jan-2026 18:27:25 UTC] PHP Fatal error:  Uncaught Error: Call to a member function execute() on boolean in /home/u1369127/public_html/app/db/db.php:34
-Stack trace:
-#0 /home/u1369127/public_html/admin/chatbot/faq.php(7): selectAll('chat_faq')
-#1 {main}
-  thrown in /home/u1369127/public_html/app/db/db.php on line 34
