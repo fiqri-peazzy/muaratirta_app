@@ -88,9 +88,11 @@ if (isset($_GET['id'])) {
             <table class="table1" border="1">
                 <tr>
                     <td style="height:10px !important;width:16%;text-transform:uppercase;">No. Sambung</td>';
+    $foto_extensions = ['jpg', 'jpeg', 'png'];
     if ($keluhan['foto'] !== null && $keluhan['foto'] !== '') {
-        $file_extension = pathinfo($keluhan['foto'], PATHINFO_EXTENSION);
-        if ($file_extension === 'jpg') {
+        $file_extension = strtolower(pathinfo($keluhan['foto'], PATHINFO_EXTENSION));
+        $foto_path = ROOT_PATH . '/assets/keluhan/' . $keluhan['foto'];
+        if (in_array($file_extension, $foto_extensions) && file_exists($foto_path)) {
             $content .= '<td style="height:16px !important;width:40%;font-weight:bold;">' . $keluhan['id_pel'] . '</td>
                     <td style="width:35%;padding-left:0px !important;padding-right:0px !important;" rowspan="6">
                         <img src="' . BASE_URL . '/assets/keluhan/' . $keluhan['foto'] . '" style="height:320px;max-width:100%;width:100%">
@@ -135,10 +137,18 @@ if (isset($_GET['id'])) {
 </body>
 
 </html>';
-    $html2pdf = new Html2Pdf('L', 'A5', 'en');
-    // $html2pdf->setModeDebug();
-    $html2pdf->writeHTML($content);
-    $html2pdf->output('keluhan_' . $keluhan['id_pel'] . '.pdf');
+    try {
+        $html2pdf = new Html2Pdf('L', 'A5', 'en');
+        // $html2pdf->setModeDebug();
+        $html2pdf->writeHTML($content);
+        $html2pdf->output('keluhan_' . $keluhan['id_pel'] . '.pdf');
+    } catch (\Exception $e) {
+        error_log('cetak_pengaduan PDF error (id=' . $keluhan['id'] . '): ' . $e->getMessage());
+        header('Content-Type: text/plain');
+        http_response_code(500);
+        echo 'Gagal membuat PDF. Silakan hubungi admin.';
+        exit();
+    }
 } else {
     header('Location:' . BASE_URL . '/404');
     exit();
