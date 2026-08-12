@@ -3,6 +3,7 @@
 require(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/clean_data.php');
 require_once(ROOT_PATH . '/app/helpers/php_mail.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 
 function generateRandomString($length = 12)
@@ -72,13 +73,14 @@ if (isset($_POST['submit-keluhan'])) {
         $file_extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
 
         if (in_array($file_extension, $allowed_extensions)) {
-            $image = time() . "_" . $_FILES['foto']['name'];
-            $destination = ROOT_PATH . "/assets/keluhan/" . $image;
+            $image = time() . "_" . uniqid() . "." . $file_extension;
 
-            $results = move_uploaded_file($_FILES['foto']['tmp_name'], $destination);
+            $results = uploadToR2($_FILES['foto']['tmp_name'], 'pengaduan', $image);
 
             if ($results) {
                 $_POST['foto'] = $image;
+            } else {
+                $errors[] = 'Gagal Upload Foto';
             }
         } else {
             $errors[] = 'Upload File berupa .jpg atau .jpeg !';

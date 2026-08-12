@@ -3,6 +3,7 @@
 include('../../path.php');
 include(ROOT_PATH . '/app/controllers/info.php');
 include(ROOT_PATH . '/app/helpers/middleware.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 adminOnly();
 if (!empty($_GET['id']) && $_GET['id'] != null) {
     $id = $_GET['id'];
@@ -158,10 +159,11 @@ if (!empty($_GET['id']) && $_GET['id'] != null) {
                             <br>
                             <?php
                             if ($pengaduan['foto'] != null && $pengaduan['foto'] != '') {
-                                $file_extension = pathinfo($pengaduan['foto'], PATHINFO_EXTENSION);
-                                if ($file_extension === 'jpg') { ?>
-                            <a href="<?= BASE_URL . '/assets/keluhan/' . $pengaduan['foto'] ?>">
-                                <img src="<?= BASE_URL . '/assets/keluhan/' . $pengaduan['foto'] ?>" alt=""
+                                $file_extension = strtolower(pathinfo($pengaduan['foto'], PATHINFO_EXTENSION));
+                                $pengaduan_foto_url = resolveImageUrl($pengaduan['foto'], 'pengaduan', ['assets/keluhan', 'image/pengaduan']);
+                                if (in_array($file_extension, ['jpg', 'jpeg', 'png']) && $pengaduan_foto_url !== '') { ?>
+                            <a href="<?= $pengaduan_foto_url ?>">
+                                <img src="<?= $pengaduan_foto_url ?>" alt=""
                                     class="img-fluid" width="300" height="300">
                             </a>
                             <?php } else { ?>

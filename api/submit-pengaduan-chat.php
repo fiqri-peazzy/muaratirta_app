@@ -7,6 +7,7 @@
 
 require('../path.php');
 require_once(ROOT_PATH . '/app/db/db.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 header('Content-Type: application/json');
 
@@ -63,18 +64,10 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     }
 
     if (count($errors) == 0) {
-        $uploadDir = ROOT_PATH . '/image/pengaduan/';
-
-        // Buat folder jika belum ada
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        $extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+        $extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
         $filename = 'pengaduan_' . time() . '_' . uniqid() . '.' . $extension;
-        $uploadPath = $uploadDir . $filename;
 
-        if (move_uploaded_file($_FILES['foto']['tmp_name'], $uploadPath)) {
+        if (uploadToR2($_FILES['foto']['tmp_name'], 'pengaduan', $filename)) {
             $foto = $filename;
         } else {
             $errors[] = 'Gagal upload foto';

@@ -2,6 +2,7 @@
 include('../../path.php');
 include(ROOT_PATH . '/app/db/db.php');
 require ROOT_PATH . '/vendor/autoload.php';
+require_once ROOT_PATH . '/app/helpers/r2_helper.php';
 
 use Spipu\Html2Pdf\Html2Pdf;
 
@@ -91,11 +92,11 @@ if (isset($_GET['id'])) {
     $foto_extensions = ['jpg', 'jpeg', 'png'];
     if ($keluhan['foto'] !== null && $keluhan['foto'] !== '') {
         $file_extension = strtolower(pathinfo($keluhan['foto'], PATHINFO_EXTENSION));
-        $foto_path = ROOT_PATH . '/assets/keluhan/' . $keluhan['foto'];
-        if (in_array($file_extension, $foto_extensions) && file_exists($foto_path)) {
+        $foto_url = resolveImageUrl($keluhan['foto'], 'pengaduan', ['assets/keluhan', 'image/pengaduan']);
+        if (in_array($file_extension, $foto_extensions) && $foto_url !== '') {
             $content .= '<td style="height:16px !important;width:40%;font-weight:bold;">' . $keluhan['id_pel'] . '</td>
                     <td style="width:35%;padding-left:0px !important;padding-right:0px !important;" rowspan="6">
-                        <img src="' . BASE_URL . '/assets/keluhan/' . $keluhan['foto'] . '" style="height:320px;max-width:100%;width:100%">
+                        <img src="' . $foto_url . '" style="height:320px;max-width:100%;width:100%">
                     </td>';
         } else {
             $content .= '<td style="height:16px !important;width:40%;font-weight:bold;">' . $keluhan['id_pel'] . '</td>
