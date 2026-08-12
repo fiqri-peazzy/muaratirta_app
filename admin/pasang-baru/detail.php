@@ -30,7 +30,7 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
     <title>
-        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? $_GET['page-title'] : 'Beranda | Muaratirta Kota Gorontalo'; ?>
+        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Beranda | Muaratirta Kota Gorontalo'; ?>
     </title>
 
     <!-- Site favicon -->

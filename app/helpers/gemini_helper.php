@@ -5,8 +5,12 @@
  * Helper functions untuk integrasi Gemini AI
  */
 
-define('GEMINI_API_KEY', 'AIzaSyByOSAlHzT43yLlfBgfDK6KULw13U_uZ2A');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+if (!defined('GEMINI_API_KEY')) {
+    define('GEMINI_API_KEY', $_ENV['GEMINI_API_KEY'] ?? '');
+}
+if (!defined('GEMINI_API_URL')) {
+    define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+}
 
 function callGeminiAI($prompt, $context = '')
 {

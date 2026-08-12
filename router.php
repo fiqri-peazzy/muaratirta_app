@@ -17,6 +17,13 @@ if ($path === '') {
     return true;
 }
 
+// 1b. Blokir file sensitif, samakan dengan aturan di .htaccess untuk production.
+if (preg_match('#(^|/)(\.env.*|\.git.*|composer\.(json|lock)|error_log|\.htaccess|debug_.*\.json)$#', $path)) {
+    http_response_code(403);
+    echo 'Forbidden';
+    return true;
+}
+
 // 2. File/folder yang memang ada (asset, admin/index.php, api/*.php, dst) -> biarkan
 //    built-in server yang tangani apa adanya.
 if (is_file($fullPath) || is_dir($fullPath)) {

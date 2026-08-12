@@ -21,10 +21,10 @@ if (!function_exists('sendEmail')) {
         $mail = new PHPMailer(true);
         $mail->SMTPDebug = 0;
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
+        $mail->Host = $_ENV['EMAIL_HOST'] ?? 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'fiqriawan36@gmail.com';
-        $mail->Password = 'suboxqrlmcpkbvqx';
+        $mail->Username = $_ENV['EMAIL_USERNAME'] ?? '';
+        $mail->Password = $_ENV['EMAIL_PASSWORD'] ?? '';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         $mail->Port = 587;
         $mail->setFrom($mailConfig['mail_from_email'], $mailConfig['mail_from_name']);
