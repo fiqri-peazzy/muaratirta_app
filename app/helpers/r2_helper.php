@@ -27,6 +27,41 @@ if (!function_exists('getR2Client')) {
 }
 
 /**
+ * Validasi upload gambar dengan benar: cek error upload, ukuran, DAN isi file asli
+ * (getimagesize, bukan cuma ekstensi nama file yang gampang dipalsukan - mis. rename
+ * "shell.php" jadi "shell.jpg" tetap lolos cek ekstensi tapi gagal di getimagesize).
+ * Return null kalau valid, atau pesan error (string) kalau tidak valid.
+ */
+if (!function_exists('validateImageUpload')) {
+    function validateImageUpload($file, array $allowedExtensions = ['jpg', 'jpeg', 'png'], $maxSizeBytes = 5 * 1024 * 1024)
+    {
+        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+            return 'Gagal upload file (upload tidak lengkap atau terputus)';
+        }
+        if ($file['size'] > $maxSizeBytes) {
+            return 'Ukuran file maksimal ' . round($maxSizeBytes / 1024 / 1024) . 'MB';
+        }
+        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($extension, $allowedExtensions)) {
+            return 'Format file harus ' . implode('/', $allowedExtensions);
+        }
+        $imageInfo = @getimagesize($file['tmp_name']);
+        if ($imageInfo === false) {
+            return 'File bukan gambar yang valid';
+        }
+        $allowedTypes = [
+            'jpg' => IMAGETYPE_JPEG,
+            'jpeg' => IMAGETYPE_JPEG,
+            'png' => IMAGETYPE_PNG,
+        ];
+        if (isset($allowedTypes[$extension]) && $imageInfo[2] !== $allowedTypes[$extension]) {
+            return 'Isi file tidak sesuai dengan ekstensinya';
+        }
+        return null;
+    }
+}
+
+/**
  * Upload file lokal (hasil $_FILES[...]['tmp_name']) ke bucket R2.
  * Return nama file (key relatif dalam folder) jika sukses, atau false jika gagal.
  */

@@ -1,4 +1,4 @@
-const CACHE_NAME = "pdam-muara-tirta-v1.0.3";
+const CACHE_NAME = "pdam-muara-tirta-v1.0.4";
 const OFFLINE_URL = "/offline.html";
 
 // Files to cache
@@ -51,10 +51,32 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Path yang tidak boleh pernah di-cache: halaman admin, auth, dan API selalu
+// harus fresh dari server (data dinamis & auth-gated, tidak aman/valid untuk di-cache).
+const NEVER_CACHE_PATTERNS = [
+  "/admin",
+  "/login",
+  "/logout",
+  "/api/",
+  "/forgot-password",
+  "/reset-password",
+];
+
 // Fetch event - serve from cache, fallback to network
 self.addEventListener("fetch", (event) => {
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  const requestPath = new URL(event.request.url).pathname;
+  const isNeverCache =
+    event.request.method !== "GET" ||
+    NEVER_CACHE_PATTERNS.some((p) => requestPath.startsWith(p));
+
+  if (isNeverCache) {
+    // Network-only, tanpa sentuh cache sama sekali.
+    event.respondWith(fetch(event.request));
     return;
   }
 

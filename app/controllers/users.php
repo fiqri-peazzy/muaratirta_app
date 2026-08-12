@@ -128,13 +128,11 @@ if (isset($_POST['submit-keluhan'])) {
 
 if (isset($_POST['daftar-baru'])) {
     if (!empty($_FILES['foto_ktp']['name'])) {
-        $allowed_extensions = array('jpg', 'jpeg', 'png');
-
-        $file_extension = strtolower(pathinfo($_FILES['foto_ktp']['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($file_extension, $allowed_extensions)) {
-            $errors[] = "Upload File berupa .Jpg, .jpeg .png!";
+        $ktp_error = validateImageUpload($_FILES['foto_ktp'], ['jpg', 'jpeg', 'png']);
+        if ($ktp_error !== null) {
+            $errors[] = $ktp_error;
         } else {
+            $file_extension = strtolower(pathinfo($_FILES['foto_ktp']['name'], PATHINFO_EXTENSION));
             $foto_ktp = time() . "_" . generateRandomString() . '.' . $file_extension;
 
             $results = uploadImageToR2($_FILES['foto_ktp']['tmp_name'], 'daftar-baru', $foto_ktp);
@@ -149,13 +147,11 @@ if (isset($_POST['daftar-baru'])) {
         $errors[] = 'Mohon Upload Foto KTP anda';
     }
     if (!empty($_FILES['foto_rumah']['name'])) {
-        $allowed_extensions = array('jpg', 'jpeg');
-
-        $file_extension = strtolower(pathinfo($_FILES['foto_rumah']['name'], PATHINFO_EXTENSION));
-
-        if (!in_array($file_extension, $allowed_extensions)) {
-            $errors[] = "Upload File berupa .Jpg, .jpeg !";
+        $rumah_error = validateImageUpload($_FILES['foto_rumah'], ['jpg', 'jpeg']);
+        if ($rumah_error !== null) {
+            $errors[] = $rumah_error;
         } else {
+            $file_extension = strtolower(pathinfo($_FILES['foto_rumah']['name'], PATHINFO_EXTENSION));
             $foto_rumah = time() . "_" . generateRandomString() . '.' . $file_extension;
 
             $results = uploadImageToR2($_FILES['foto_rumah']['tmp_name'], 'daftar-baru', $foto_rumah);

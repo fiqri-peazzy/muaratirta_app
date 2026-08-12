@@ -24,7 +24,15 @@ if (preg_match('#(^|/)(\.env.*|\.git.*|composer\.(json|lock)|error_log|\.htacces
     return true;
 }
 
-// 2. File/folder yang memang ada (asset, admin/index.php, api/*.php, dst) -> biarkan
+// 2. Folder tanpa trailing slash (mis. /admin) -> redirect ke /admin/ dulu,
+//    sama seperti mod_dir Apache di production. Tanpa ini, path CSS/JS relatif
+//    di halaman admin salah resolve (ke root, bukan ke /admin/...).
+if (is_dir($fullPath) && substr($uri, -1) !== '/') {
+    header('Location: ' . $uri . '/');
+    return true;
+}
+
+// File/folder yang memang ada (asset, admin/index.php, api/*.php, dst) -> biarkan
 //    built-in server yang tangani apa adanya.
 if (is_file($fullPath) || is_dir($fullPath)) {
     return false;
