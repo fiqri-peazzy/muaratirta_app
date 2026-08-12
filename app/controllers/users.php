@@ -75,7 +75,7 @@ if (isset($_POST['submit-keluhan'])) {
         if (in_array($file_extension, $allowed_extensions)) {
             $image = time() . "_" . uniqid() . "." . $file_extension;
 
-            $results = uploadToR2($_FILES['foto']['tmp_name'], 'pengaduan', $image);
+            $results = uploadImageToR2($_FILES['foto']['tmp_name'], 'pengaduan', $image);
 
             if ($results) {
                 $_POST['foto'] = $image;

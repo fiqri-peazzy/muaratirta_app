@@ -67,7 +67,7 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
         $extension = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
         $filename = 'pengaduan_' . time() . '_' . uniqid() . '.' . $extension;
 
-        if (uploadToR2($_FILES['foto']['tmp_name'], 'pengaduan', $filename)) {
+        if (uploadImageToR2($_FILES['foto']['tmp_name'], 'pengaduan', $filename)) {
             $foto = $filename;
         } else {
             $errors[] = 'Gagal upload foto';

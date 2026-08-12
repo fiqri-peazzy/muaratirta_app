@@ -84,7 +84,7 @@ if (isset($_POST['add-info'])) {
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $image = time() . "_" . uniqid() . "." . $extension;
 
-        $results = uploadToR2($_FILES['image']['tmp_name'], 'informasi', $image);
+        $results = uploadImageToR2($_FILES['image']['tmp_name'], 'informasi', $image);
 
         if ($results) {
             $_POST['image'] = $image;
@@ -129,7 +129,7 @@ if (isset($_POST['update-info'])) {
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
         $image = time() . "_" . uniqid() . "." . $extension;
 
-        $results = uploadToR2($_FILES['image']['tmp_name'], 'informasi', $image);
+        $results = uploadImageToR2($_FILES['image']['tmp_name'], 'informasi', $image);
 
         if ($results) {
             if (!empty($info_id['image'])) {

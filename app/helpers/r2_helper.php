@@ -50,6 +50,86 @@ if (!function_exists('uploadToR2')) {
 }
 
 /**
+ * Kompres & batasi dimensi gambar sebelum diupload, supaya storage R2 lebih hemat
+ * dan gambar lebih cepat di-load di frontend. JPG/PNG di-resize maksimal $maxWidth
+ * (rasio dipertahankan, tidak diperbesar kalau sudah lebih kecil) lalu dikompres ulang.
+ * Return path file temp hasil kompresi, atau path asli kalau bukan gambar/gagal diproses
+ * (fallback aman: upload tetap jalan pakai file asli). Pemanggil TIDAK perlu unlink kalau
+ * hasilnya sama dengan path asli; kalau beda (file temp baru), boleh dibersihkan tapi tidak wajib
+ * karena ada di sys temp dir yang otomatis dibersihkan OS.
+ */
+if (!function_exists('compressImageForUpload')) {
+    function compressImageForUpload($sourcePath, $maxWidth = 1600, $jpegQuality = 78, $pngCompression = 6)
+    {
+        $info = @getimagesize($sourcePath);
+        if ($info === false) {
+            return $sourcePath; // bukan gambar (mis. dokumen lain) -> upload apa adanya
+        }
+
+        [$width, $height, $type] = $info;
+
+        $source = match ($type) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($sourcePath),
+            IMAGETYPE_PNG => @imagecreatefrompng($sourcePath),
+            IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($sourcePath) : false,
+            default => false,
+        };
+
+        if ($source === false) {
+            return $sourcePath;
+        }
+
+        if ($width > $maxWidth) {
+            $newWidth = $maxWidth;
+            $newHeight = (int) round($height * ($maxWidth / $width));
+        } else {
+            $newWidth = $width;
+            $newHeight = $height;
+        }
+
+        $resized = imagecreatetruecolor($newWidth, $newHeight);
+
+        if ($type === IMAGETYPE_PNG) {
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+        }
+
+        imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        imagedestroy($source);
+
+        $extension = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION)) ?: 'jpg';
+        $tempPath = tempnam(sys_get_temp_dir(), 'r2cmp_') . '.' . $extension;
+
+        $ok = match ($type) {
+            IMAGETYPE_JPEG => imagejpeg($resized, $tempPath, $jpegQuality),
+            IMAGETYPE_PNG => imagepng($resized, $tempPath, $pngCompression),
+            IMAGETYPE_WEBP => function_exists('imagewebp') ? imagewebp($resized, $tempPath, $jpegQuality) : false,
+            default => false,
+        };
+
+        imagedestroy($resized);
+
+        return $ok ? $tempPath : $sourcePath;
+    }
+}
+
+/**
+ * Upload gambar ke R2 dengan kompresi otomatis lebih dulu (lihat compressImageForUpload).
+ * Dipakai untuk semua upload foto user-facing; untuk file non-gambar tetap pakai uploadToR2 biasa.
+ */
+if (!function_exists('uploadImageToR2')) {
+    function uploadImageToR2($tmpFilePath, $folderName, $fileName, $maxWidth = 1600, $jpegQuality = 78)
+    {
+        $compressedPath = compressImageForUpload($tmpFilePath, $maxWidth, $jpegQuality);
+        $result = uploadToR2($compressedPath, $folderName, $fileName);
+        if ($compressedPath !== $tmpFilePath && file_exists($compressedPath)) {
+            unlink($compressedPath);
+        }
+        return $result;
+    }
+}
+
+/**
  * Hapus file dari bucket R2.
  */
 if (!function_exists('deleteFromR2')) {
@@ -81,7 +161,7 @@ if (!function_exists('getR2Url')) {
         if (empty($fileName)) {
             return '';
         }
-        return rtrim($_ENV['R2_PUBLIC_URL'], '/') . '/' . trim($folderName, '/') . '/' . $fileName;
+        return rtrim($_ENV['R2_PUBLIC_URL'], '/') . '/' . trim($folderName, '/') . '/' . rawurlencode($fileName);
     }
 }
 
