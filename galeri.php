@@ -63,7 +63,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                         <li class="col-lg-4 col-md-6 col-sm-12">
                             <div class="da-card box-shadow">
                                 <div class="da-card-photo">
-                                    <img src="<?php echo BASE_URL . '/assets/galeri/' . $i['image']; ?>" alt="" />
+                                    <img src="<?php echo resolveImageUrl($i['image'], 'galeri', ['assets/galeri']); ?>" alt="" />
                                     <div class="da-overlay">
                                         <div class="da-social">
                                             <h5 class="mb-10 color-white pd-20">
@@ -71,7 +71,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                             </h5>
                                             <ul class="clearfix">
                                                 <li style="list-style: none;">
-                                                    <a href="<?php echo BASE_URL . '/assets/galeri/' . $i['image']; ?>"
+                                                    <a href="<?php echo resolveImageUrl($i['image'], 'galeri', ['assets/galeri']); ?>"
                                                         data-fancybox="images"><i class="fa fa-image"></i></a>
                                                 </li>
                                                 <li>

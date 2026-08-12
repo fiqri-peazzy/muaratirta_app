@@ -2,6 +2,7 @@
 
 include('../../path.php');
 require_once(ROOT_PATH . '/app/db/db.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'];
@@ -38,10 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($file_extension, $allowed_extensions)) {
             $errors['profile_pict'] = 'Upload file image (.jpg, .png)';
         } else {
-            $image = "UIMG_" . time() . '_' . $_FILES['profile_pict']['name'];
-            $path = ROOT_PATH . '/assets/staff/';
-            $destination = $path . $image;
-            if (move_uploaded_file($_FILES['profile_pict']['tmp_name'], $destination)) {
+            $old_staff = selectOne('staff', ['id' => $id]);
+            $image = "UIMG_" . time() . '_' . uniqid() . '.' . $file_extension;
+            if (uploadImageToR2($_FILES['profile_pict']['tmp_name'], 'staff', $image)) {
+                if (!empty($old_staff['profile_pict'])) {
+                    $legacyPath = ROOT_PATH . '/assets/staff/' . $old_staff['profile_pict'];
+                    if (file_exists($legacyPath)) {
+                        unlink($legacyPath);
+                    }
+                    deleteFromR2('staff', $old_staff['profile_pict']);
+                }
                 $_POST['profile_pict'] = $image;
             }
         }

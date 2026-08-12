@@ -19,7 +19,7 @@
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     <span class="user-icon">
-                        <img src="<?php echo (getUser()['profile_pict'] == null ? BASE_URL . '/assets/profile-pict/default.png' : BASE_URL . '/assets/profile-pict/' . getUser()['profile_pict'])  ?>"
+                        <img src="<?php echo (getUser()['profile_pict'] == null ? BASE_URL . '/assets/profile-pict/default.png' : resolveImageUrl(getUser()['profile_pict'], 'profile', ['assets/profile-pict']))  ?>"
                             alt="" />
                     </span>
                     <span class="user-name"><?= getUser()['username'] ?></span>

@@ -76,7 +76,7 @@ adminOnly();
                             <div class="profile-photo">
                                 <a href="javascript:;" onclick="event.preventDefault();document.getElementById('user_profile_file').click();" class="edit-avatar"><i class="fa fa-pencil"></i></a>
                                 <input type="file" name="user_profile_file" id="user_profile_file" class="d-none" style="opacity: 0;">
-                                <img src="<?php echo empty(getUser()['profile_pict']) ?  BASE_URL . '/assets/image/default-user.jpg' :  BASE_URL . '/assets/profile-pict/' . getUser()['profile_pict'] ?>" alt="" class="avatar-photo ci-avatar-photo" />
+                                <img src="<?php echo empty(getUser()['profile_pict']) ?  BASE_URL . '/assets/image/default-user.jpg' :  resolveImageUrl(getUser()['profile_pict'], 'profile', ['assets/profile-pict']) ?>" alt="" class="avatar-photo ci-avatar-photo" />
 
                             </div>
                             <h5 class="text-center h5 mb-0 ci-user-name"><?= getUser()['username'] ?></h5>

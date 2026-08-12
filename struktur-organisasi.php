@@ -373,7 +373,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                     <!-- Leader 1 -->
                     <div class="so-leader-card" data-aos="fade-up" data-aos-delay="100">
                         <div class="so-leader-image">
-                            <img src="<?= $direksi[0]['profile_pict'] === null ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $direksi[0]['profile_pict'] ?>"
+                            <img src="<?= $direksi[0]['profile_pict'] === null ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($direksi[0]['profile_pict'], 'staff', ['assets/staff']) ?>"
                                 alt="<?= $direksi[0]['nm_lengkap'] ?>">
                             <div class="so-leader-badge">Pembina</div>
                         </div>
@@ -393,7 +393,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                     <!-- Leader 2 -->
                     <div class="so-leader-card" data-aos="fade-up" data-aos-delay="200">
                         <div class="so-leader-image">
-                            <img src="<?= $direksi[1]['profile_pict'] === null ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $direksi[1]['profile_pict'] ?>"
+                            <img src="<?= $direksi[1]['profile_pict'] === null ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($direksi[1]['profile_pict'], 'staff', ['assets/staff']) ?>"
                                 alt="<?= $direksi[1]['nm_lengkap'] ?>">
                             <div class="so-leader-badge">Pengawas</div>
                         </div>
@@ -413,7 +413,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                     <!-- Leader 3 -->
                     <div class="so-leader-card" data-aos="fade-up" data-aos-delay="300">
                         <div class="so-leader-image">
-                            <img src="<?= $direksi[2]['profile_pict'] === null ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $direksi[2]['profile_pict'] ?>"
+                            <img src="<?= $direksi[2]['profile_pict'] === null ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($direksi[2]['profile_pict'], 'staff', ['assets/staff']) ?>"
                                 alt="<?= $direksi[2]['nm_lengkap'] ?>">
                             <div class="so-leader-badge">Direktur</div>
                         </div>
@@ -455,7 +455,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                                     <?php foreach (selectAll('staff', ['kd_bagian' => 'BGN-6713']) as $member) : ?>
                                     <div class="so-member-card">
                                         <div class="so-member-img">
-                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $member['profile_pict'] ?>"
+                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($member['profile_pict'], 'staff', ['assets/staff']) ?>"
                                                 alt="<?= $member['nm_lengkap'] ?>">
                                         </div>
                                         <h4 class="so-member-name"><?= $member['nm_lengkap'] ?></h4>
@@ -482,7 +482,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                                     <?php foreach (selectAll('staff', ['kd_bagian' => 'BGN-2686']) as $member) : ?>
                                     <div class="so-member-card">
                                         <div class="so-member-img">
-                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $member['profile_pict'] ?>"
+                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($member['profile_pict'], 'staff', ['assets/staff']) ?>"
                                                 alt="<?= $member['nm_lengkap'] ?>">
                                         </div>
                                         <h4 class="so-member-name"><?= $member['nm_lengkap'] ?></h4>
@@ -509,7 +509,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                                     <?php foreach (selectAll('staff', ['kd_bagian' => 'BGN-8727']) as $member) : ?>
                                     <div class="so-member-card">
                                         <div class="so-member-img">
-                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $member['profile_pict'] ?>"
+                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($member['profile_pict'], 'staff', ['assets/staff']) ?>"
                                                 alt="<?= $member['nm_lengkap'] ?>">
                                         </div>
                                         <h4 class="so-member-name"><?= $member['nm_lengkap'] ?></h4>
@@ -536,7 +536,7 @@ $direksi = selectAll('staff', ['kd_bagian' => 'BGN-4864']);
                                     <?php foreach (selectAll('staff', ['kd_bagian' => 'BGN-2568']) as $member) : ?>
                                     <div class="so-member-card">
                                         <div class="so-member-img">
-                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : BASE_URL . '/assets/staff/' . $member['profile_pict'] ?>"
+                                            <img src="<?= $member['profile_pict'] === '' ? BASE_URL . '/assets/image/default-user.jpg' : resolveImageUrl($member['profile_pict'], 'staff', ['assets/staff']) ?>"
                                                 alt="<?= $member['nm_lengkap'] ?>">
                                         </div>
                                         <h4 class="so-member-name"><?= $member['nm_lengkap'] ?></h4>

@@ -139,7 +139,7 @@ if (isset($_GET['id'])) {
                     </div>
                     <div class="form-group row">
                         <label for="" class="col-sm-2 form-label d-none">Foto</label>
-                        <img src="<?= $staff['profile_pict'] == '' ? '' : BASE_URL . '/assets/staff/' . $staff['profile_pict'] ?>"
+                        <img src="<?= $staff['profile_pict'] == '' ? '' : resolveImageUrl($staff['profile_pict'], 'staff', ['assets/staff']) ?>"
                             id="frame" alt="" class="img-fluid col-lg-4">
                     </div>
 

@@ -2,6 +2,7 @@
 require_once('../../path.php');
 require_once(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/clean_data.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 function validateFormAddUser($data)
 {
@@ -60,10 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!in_array($file_extension, $allowed_extensions)) {
             $errors['profile_pict'] = 'Upload file image (.jpg, .png)';
         } else {
-            $image = "UIMG_" . time() . '_' . $_FILES['profile_pict']['name'];
-            $path = ROOT_PATH . '/assets/profile-pict/';
-            $destination = $path . $image;
-            if (move_uploaded_file($_FILES['profile_pict']['tmp_name'], $destination)) {
+            $image = "UIMG_" . time() . '_' . uniqid() . '.' . $file_extension;
+            if (uploadImageToR2($_FILES['profile_pict']['tmp_name'], 'profile', $image)) {
                 $_POST['profile_pict'] = $image;
             }
         }

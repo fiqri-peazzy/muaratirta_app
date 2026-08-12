@@ -1,6 +1,7 @@
 <?php
 
 include(ROOT_PATH . '/app/db/db.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 if (isset($_POST['add-bagian'])) {
     unset($_POST['add-bagian']);

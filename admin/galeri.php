@@ -77,7 +77,7 @@ adminOnly();
                         <li class="col-lg-4 col-md-6 col-sm-12">
                             <div class="da-card box-shadow">
                                 <div class="da-card-photo">
-                                    <img src="<?php echo BASE_URL . '/assets/galeri/' . $img['image'] ?>" alt="" />
+                                    <img src="<?php echo resolveImageUrl($img['image'], 'galeri', ['assets/galeri']) ?>" alt="" />
                                     <div class="da-overlay">
                                         <div class="da-social">
                                             <h5 class="mb-10 color-white pd-20">
@@ -85,7 +85,7 @@ adminOnly();
                                             </h5>
                                             <ul class="clearfix">
                                                 <li>
-                                                    <a href="<?php echo BASE_URL . '/assets/galeri/' . $img['image'] ?>" data-fancybox="images"><i class="fa fa-picture-o"></i></a>
+                                                    <a href="<?php echo resolveImageUrl($img['image'], 'galeri', ['assets/galeri']) ?>" data-fancybox="images"><i class="fa fa-picture-o"></i></a>
                                                 </li>
                                                 <li>
                                                     <a id="hapus-img" class="hapus-img" data-id="<?= $img['id'] ?>"><i class="fa fa-trash"></i></a>
