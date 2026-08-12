@@ -23,11 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $id = $_POST['id_p'];
 
     $db_info = selectOne('pasang_baru', ['id' => $id]);
-    $path_foto_ktp = ROOT_PATH . '/assets/daftar-baru/' . $db_info['foto_ktp'];
-    $path_foto_rumah = ROOT_PATH . '/assets/daftar-baru/' . $db_info['foto_rumah'];
-    if (file_exists($path_foto_ktp) && file_exists($path_foto_rumah)) {
-        unlink($path_foto_ktp);
-        unlink($path_foto_rumah);
+    foreach (['foto_ktp', 'foto_rumah'] as $field) {
+        if (!empty($db_info[$field])) {
+            $legacyPath = ROOT_PATH . '/assets/daftar-baru/' . $db_info[$field];
+            if (file_exists($legacyPath)) {
+                unlink($legacyPath);
+            }
+            deleteFromR2('daftar-baru', $db_info[$field]);
+        }
     }
     $hapus = deleteF('pasang_baru', $id);
     if ($hapus) {

@@ -157,7 +157,7 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
                         <h5 class="text-primary p-2">Foto Ktp</h5><br>
                         <div class="img-wrapper">
                             <img id="foto-ktp" class="img-fluid"
-                                src="<?php echo BASE_URL . '/assets/daftar-baru/' . $pasang_baru['foto_ktp'] ?>" alt="">
+                                src="<?php echo resolveImageUrl($pasang_baru['foto_ktp'], 'daftar-baru', ['assets/daftar-baru']) ?>" alt="">
 
                         </div>
 
@@ -166,7 +166,7 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
                     <div class="col-lg-6">
                         <h5 class="text-primary p-2">Foto Rumah</h5><br>
                         <div class="img-wrapper">
-                            <img src="<?= BASE_URL . '/assets/daftar-baru/' . $pasang_baru['foto_rumah'] ?>"
+                            <img src="<?= resolveImageUrl($pasang_baru['foto_rumah'], 'daftar-baru', ['assets/daftar-baru']) ?>"
                                 class="img-fluid" alt="">
                         </div>
 

@@ -135,10 +135,9 @@ if (isset($_POST['daftar-baru'])) {
         if (!in_array($file_extension, $allowed_extensions)) {
             $errors[] = "Upload File berupa .Jpg, .jpeg .png!";
         } else {
-            $foto_ktp = time() . "_" . generateRandomString() . '.jpg';
-            $destination = ROOT_PATH . "/assets/daftar-baru/" . $foto_ktp;
+            $foto_ktp = time() . "_" . generateRandomString() . '.' . $file_extension;
 
-            $results = move_uploaded_file($_FILES['foto_ktp']['tmp_name'], $destination);
+            $results = uploadImageToR2($_FILES['foto_ktp']['tmp_name'], 'daftar-baru', $foto_ktp);
 
             if ($results) {
                 $_POST['foto_ktp'] = $foto_ktp;
@@ -157,10 +156,9 @@ if (isset($_POST['daftar-baru'])) {
         if (!in_array($file_extension, $allowed_extensions)) {
             $errors[] = "Upload File berupa .Jpg, .jpeg !";
         } else {
-            $foto_rumah = time() . "_" . generateRandomString() . '.jpg';
-            $destination = ROOT_PATH . "/assets/daftar-baru/" . $foto_rumah;
+            $foto_rumah = time() . "_" . generateRandomString() . '.' . $file_extension;
 
-            $results = move_uploaded_file($_FILES['foto_rumah']['tmp_name'], $destination);
+            $results = uploadImageToR2($_FILES['foto_rumah']['tmp_name'], 'daftar-baru', $foto_rumah);
 
             if ($results) {
                 $_POST['foto_rumah'] = $foto_rumah;

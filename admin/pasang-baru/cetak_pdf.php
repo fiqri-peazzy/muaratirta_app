@@ -2,6 +2,7 @@
 include('../../path.php');
 include(ROOT_PATH . '/app/db/db.php');
 require ROOT_PATH . '/vendor/autoload.php';
+require_once ROOT_PATH . '/app/helpers/r2_helper.php';
 
 use Spipu\Html2Pdf\Html2Pdf;
 
@@ -14,6 +15,30 @@ if (isset($_GET['id'])) {
     }
 
     $page_title = 'Cetak Info Pendaftar-' . $info_pendaftar['id'];
+    $logo_path = ROOT_PATH . '/assets/image/download.png';
+
+    // Ambil foto KTP/rumah ke file lokal (folder lama atau download dari R2 lewat API)
+    // supaya Html2Pdf tidak fetch lewat URL publik yang bisa lambat/hang.
+    $temp_files = [];
+    $resolveLocalPhoto = function ($fileName) use (&$temp_files) {
+        if (empty($fileName)) {
+            return '';
+        }
+        foreach (['assets/daftar-baru'] as $legacyDir) {
+            $candidate = ROOT_PATH . '/' . $legacyDir . '/' . $fileName;
+            if (file_exists($candidate)) {
+                return $candidate;
+            }
+        }
+        $temp = downloadR2ToTemp('daftar-baru', $fileName);
+        if ($temp) {
+            $temp_files[] = $temp;
+            return $temp;
+        }
+        return '';
+    };
+    $foto_ktp_path = $resolveLocalPhoto($info_pendaftar['foto_ktp']);
+    $foto_rumah_path = $resolveLocalPhoto($info_pendaftar['foto_rumah']);
 
     $content = '<!DOCTYPE html>
 <html lang="en">
@@ -39,17 +64,17 @@ if (isset($_GET['id'])) {
 
 <body>
     <div class="logo-img">
-        <img src="' . BASE_URL . '/assets/image/download.png' . '" alt="" srcset="">
+        <img src="' . $logo_path . '" alt="" srcset="">
     </div>
     <h5 style="text-transform:uppercase; font-size:18px; font-weight:500; text-align:center;margin-bottom:60px;">Form Pendaftaran Sambungan Baru</h5>
     <table border="0" style="width:100%;padding-left:65px;padding-right:65px;">
         <tr>
             <td style="border: 1px solid black; width:47%;height:200px;align-items:center;text-align:center;">
-                <img src="' . BASE_URL . '/assets/daftar-baru/' . $info_pendaftar['foto_ktp'] . '" style="max-height:200px;max-width:100%">
+                ' . ($foto_ktp_path !== '' ? '<img src="' . $foto_ktp_path . '" style="max-height:200px;max-width:100%">' : 'Tidak ada gambar di temukan') . '
             </td>
             <td style="width: 4%;"></td>
             <td style="border: 1px solid black; width:47%;height:200px;align-items:center;text-align:center;">
-                <img src="' . BASE_URL . '/assets/daftar-baru/' . $info_pendaftar['foto_rumah'] . '" style="max-height:200px;max-width:100%">
+                ' . ($foto_rumah_path !== '' ? '<img src="' . $foto_rumah_path . '" style="max-height:200px;max-width:100%">' : 'Tidak ada gambar di temukan') . '
             </td>
 
 
@@ -120,10 +145,24 @@ if (isset($_GET['id'])) {
 ';
 
 
-    $html2pdf = new Html2Pdf('P', 'A4', 'en');
-    // $html2pdf->setModeDebug();
-    $html2pdf->writeHTML($content);
-    $html2pdf->output('info_pendaftar_' . $info_pendaftar['id'] . '.pdf');
+    try {
+        $html2pdf = new Html2Pdf('P', 'A4', 'en');
+        // $html2pdf->setModeDebug();
+        $html2pdf->writeHTML($content);
+        $html2pdf->output('info_pendaftar_' . $info_pendaftar['id'] . '.pdf');
+    } catch (\Throwable $e) {
+        error_log('cetak_pdf pasang-baru error (id=' . $info_pendaftar['id'] . '): ' . $e->getMessage());
+        header('Content-Type: text/plain');
+        http_response_code(500);
+        echo 'Gagal membuat PDF. Silakan hubungi admin.';
+        exit();
+    } finally {
+        foreach ($temp_files as $temp_file) {
+            if (file_exists($temp_file)) {
+                unlink($temp_file);
+            }
+        }
+    }
 } else {
     header('Location:' . BASE_URL . '/404');
     exit();

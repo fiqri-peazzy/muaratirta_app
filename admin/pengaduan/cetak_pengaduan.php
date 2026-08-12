@@ -159,7 +159,7 @@ if (isset($_GET['id'])) {
         // $html2pdf->setModeDebug();
         $html2pdf->writeHTML($content);
         $html2pdf->output('keluhan_' . $keluhan['id_pel'] . '.pdf');
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log('cetak_pengaduan PDF error (id=' . $keluhan['id'] . '): ' . $e->getMessage());
         header('Content-Type: text/plain');
         http_response_code(500);

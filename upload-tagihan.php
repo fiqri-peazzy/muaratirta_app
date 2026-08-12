@@ -1,24 +1,17 @@
 <?php
+require_once(__DIR__ . '/path.php');
+require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['tagihan_image'])) {
-    $uploadDir = 'uploads/tagihan/';
-
-    // Buat folder jika belum ada
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
     $file = $_FILES['tagihan_image'];
     $fileName = 'tagihan_' . time() . '_' . uniqid() . '.png';
-    $filePath = $uploadDir . $fileName;
 
-    if (move_uploaded_file($file['tmp_name'], $filePath)) {
-        $fileUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/' . $filePath;
-
+    if (uploadImageToR2($file['tmp_name'], 'tagihan', $fileName)) {
         echo json_encode([
             'success' => true,
-            'url' => $fileUrl,
+            'url' => getR2Url('tagihan', $fileName),
             'fileName' => $fileName
         ]);
     } else {
