@@ -19,9 +19,11 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
     $q = $pasang_baru['latitude'] . ',' . $pasang_baru['longitude'];
 }
 
-?>
+$no_pendaftaran = 'PB-' . str_pad($pasang_baru['id'], 5, '0', STR_PAD_LEFT);
+$foto_ktp_url = resolveImageUrl($pasang_baru['foto_ktp'], 'daftar-baru', ['assets/daftar-baru']);
+$foto_rumah_url = resolveImageUrl($pasang_baru['foto_rumah'], 'daftar-baru', ['assets/daftar-baru']);
 
-<?php adminOnly(); ?>
+?>
 
 <!DOCTYPE html>
 <html>
@@ -30,7 +32,7 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
     <title>
-        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Beranda | Muaratirta Kota Gorontalo'; ?>
+        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Detail Pendaftaran Baru | Muaratirta Kota Gorontalo'; ?>
     </title>
 
     <!-- Site favicon -->
@@ -49,34 +51,124 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
     <link rel="stylesheet" href="../src/plugins/sweetalert2/sweetalert2.css">
     <link rel="stylesheet" href="../src/plugins/toastr/toastr.min.css">
 
-
     <style>
-    .img-wrapper {
-        width: auto;
-        height: auto;
-        padding: 20px;
-        border: 1px solid red;
+    .pb-card {
+        border: 1px solid #eef0f3;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(20, 30, 60, 0.05);
+        height: 100%;
     }
 
-    .img-wrapper img {
-        border-radius: 12px;
+    .pb-card-header {
+        background: #f6f8fb;
+        border-bottom: 1px solid #eef0f3;
+        padding: 8px 14px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #465468;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .pb-card-body {
+        padding: 14px;
+    }
+
+    .pb-info-row {
+        display: flex;
+        align-items: flex-start;
+        padding: 7px 0;
+        border-bottom: 1px dashed #eef0f3;
+    }
+
+    .pb-info-row:last-child {
+        border-bottom: none;
+    }
+
+    .pb-info-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: #eef3fb;
+        color: #1c3f7c;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+
+    .pb-info-label {
+        font-size: 11px;
+        color: #8a94a6;
+        margin-bottom: 1px;
+    }
+
+    .pb-info-value {
+        font-size: 13px;
+        font-weight: 500;
+        color: #2b3648;
+        word-break: break-word;
+    }
+
+    .pb-photo-frame {
+        width: 100%;
+        height: 170px;
+        border: 1px solid #eef0f3;
+        border-radius: 8px;
+        background: #f9fafb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .pb-photo-frame img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .pb-photo-empty {
+        text-align: center;
+        color: #b0b8c4;
+        font-size: 12px;
+    }
+
+    .pb-photo-empty i {
+        font-size: 26px;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .pb-no-pendaftaran {
+        font-size: 17px;
+        font-weight: 700;
+        color: #1c3f7c;
+        letter-spacing: 0.5px;
+    }
+
+    .pb-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 30px;
+    }
+
+    .pb-map-frame {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #eef0f3;
+        line-height: 0;
     }
     </style>
 </head>
 
 <body>
-    <!-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="../vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div> -->
 
     <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
 
@@ -89,121 +181,129 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
 
     <div class="main-container">
         <div class="xs-pd-20-10 pd-ltr-20">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="title">
-                            <h4>Keluhan Pelanggan</h4>
-                        </div>
 
-                        <div class="status mt-2 d-flex align-items-center"
-                            data-pengaduan-id="<?= $pasang_baru['id'] ?>">
-                            <div class="date" style="padding-right: 27px ;">
-                                <?= date('d M,Y', strtotime($pasang_baru['created_at'])) ?> </div>
-                            <span class="badge badge-<?= $pasang_baru['tindak_lanjut'] == 0 ? 'info' : 'success' ?>">
-                                <?= $pasang_baru['tindak_lanjut'] == 0 ? 'Proses' : 'Selesai' ?>
+            <!-- ===== HEADER ===== -->
+            <div class="page-header mb-3">
+                <div class="row align-items-center">
+                    <div class="col-md-7 col-sm-12">
+                        <div class="title">
+                            <h4 class="mb-1">Detail Pendaftaran Baru</h4>
+                        </div>
+                        <div class="d-flex align-items-center flex-wrap" style="gap:12px;">
+                            <span class="pb-no-pendaftaran"><?= $no_pendaftaran ?></span>
+                            <span class="pb-badge badge-<?= $pasang_baru['tindak_lanjut'] == 0 ? 'info' : 'success' ?>"
+                                data-status-badge>
+                                <?= $pasang_baru['tindak_lanjut'] == 0 ? 'Dalam Proses' : 'Selesai' ?>
+                            </span>
+                            <span class="text-muted" style="font-size:12px;">
+                                <i class="fa fa-calendar"></i>
+                                <?= date('d M Y, H:i', strtotime($pasang_baru['created_at'])) ?>
                             </span>
                         </div>
-
                     </div>
-
+                    <div class="col-md-5 col-sm-12 text-md-right mt-3 mt-md-0">
+                        <a href="<?php echo BASE_URL . '/admin/pasang-baru/cetak_pdf.php?id=' . $pasang_baru['id'] ?>"
+                            target="_blank" class="btn btn-primary">
+                            <i class="fa fa-print"></i> Cetak PDF
+                        </a>
+                        <a href="#" data-id="<?= $pasang_baru['id'] ?>"
+                            class="btn btn-primary update-status <?= $pasang_baru['tindak_lanjut'] == 1 ? 'd-none' : '' ?>">
+                            <i class="fa fa-check"></i> Tandai Selesai
+                        </a>
+                        <a href="#" data-id="<?= $pasang_baru['id'] ?>"
+                            class="btn btn-danger hapus <?= $pasang_baru['tindak_lanjut'] == 0 ? 'd-none' : '' ?>">
+                            <i class="fa fa-trash"></i> Hapus
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="card-box pd-20">
-                <h5 class="text-primary p-2">Info Pendaftar</h5><br>
 
-                <div class="row">
-
-                    <!-- <div class="col-lg-6">
-                        <div class="form-group mb-1">
-                            <label for="" class="form-label">Nama Lengkap</label>
-                            <input type="text" name="" id="" class="form-control">
+            <!-- ===== DATA PEMOHON + LOKASI (satu card, padat) ===== -->
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="pb-card">
+                        <div class="pb-card-header"><i class="fa fa-user-circle"></i> Data Pemohon &amp; Lokasi</div>
+                        <div class="pb-card-body">
+                            <div class="row">
+                                <div class="col-lg-5 col-12">
+                                    <div class="pb-info-row">
+                                        <div class="pb-info-icon"><i class="fa fa-phone"></i></div>
+                                        <div>
+                                            <div class="pb-info-label">No. HP / WhatsApp</div>
+                                            <div class="pb-info-value"><?= htmlspecialchars($pasang_baru['no_hp']) ?></div>
+                                        </div>
+                                    </div>
+                                    <div class="pb-info-row">
+                                        <div class="pb-info-icon"><i class="fa fa-map-marker"></i></div>
+                                        <div>
+                                            <div class="pb-info-label">Alamat Lengkap</div>
+                                            <div class="pb-info-value"><?= htmlspecialchars($pasang_baru['alamat']) ?></div>
+                                        </div>
+                                    </div>
+                                    <div class="pb-info-row">
+                                        <div class="pb-info-icon"><i class="fa fa-money"></i></div>
+                                        <div>
+                                            <div class="pb-info-label">Biaya Registrasi</div>
+                                            <div class="pb-info-value">Rp 20.000</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-7 col-12 mt-3 mt-lg-0">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8 col-12 mb-3 mb-md-0">
+                                            <div class="pb-map-frame">
+                                                <iframe
+                                                    src="https://www.google.com/maps?q=<?= urlencode($q) ?>&h1=es;z=14&output=embed"
+                                                    frameborder="0" width="100%" height="150px"></iframe>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-12 text-center">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=<?= urlencode('https://www.google.com/maps?q=' . str_replace(' ', '+', $pasang_baru['alamat'])) ?>"
+                                                alt="qr-gmaps" class="img-fluid" style="max-width:110px;">
+                                            <div class="text-muted mt-1" style="font-size:11px;">Scan Gmaps</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group mb-1">
-                            <label for="" class="form-label">NIK</label>
-                            <input type="text" name="" id="" class="form-control">
-                        </div>
-
-
-                    </div> -->
-
-                    <div class="col-lg-6">
-                        <div class="form-group mb-1">
-                            <label for="" class="form-label">No.Telp / WA</label>
-                            <input type="text" name="" id="" value="<?php echo $pasang_baru['no_hp'] ?>"
-                                class="form-control">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="" class="form-label">Alamat Lengkap</label>
-                            <input type="text" class="form-control" name="" id=""
-                                value="<?php echo $pasang_baru['alamat'] ?>">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-
-                        <div class="form-group mb-1">
-                            <h6 class="fw-bold">Scan untuk alamat Gmaps</h6><br>
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=<?= urlencode('https://www.google.com/maps?q=' . str_replace(' ', '+', $pasang_baru['alamat'])) ?>"
-                                alt="qr-gmaps">
-                        </div>
-                    </div>
-
-                </div>
-                <hr>
-
-                <div class="row">
-                    <div class="col-lg-6">
-                        <h5 class="text-primary p-2">Foto Ktp</h5><br>
-                        <div class="img-wrapper">
-                            <img id="foto-ktp" class="img-fluid"
-                                src="<?php echo resolveImageUrl($pasang_baru['foto_ktp'], 'daftar-baru', ['assets/daftar-baru']) ?>" alt="">
-
-                        </div>
-
-
-                    </div>
-                    <div class="col-lg-6">
-                        <h5 class="text-primary p-2">Foto Rumah</h5><br>
-                        <div class="img-wrapper">
-                            <img src="<?= resolveImageUrl($pasang_baru['foto_rumah'], 'daftar-baru', ['assets/daftar-baru']) ?>"
-                                class="img-fluid" alt="">
-                        </div>
-
-
                     </div>
                 </div>
+            </div>
 
-                <div class="row mb-4 mt-2">
-
-                    <div class="col-lg-6">
-                        <h5 class="text-primary p-2">Google Maps</h5><br>
-                        <iframe src="https://www.google.com/maps?q=<?= $q ?>&h1=es;z=14&output=embed" frameborder="0"
-                            width="100%" height="350px"></iframe>
-
+            <!-- ===== DOKUMENTASI ===== -->
+            <div class="row">
+                <div class="col-lg-6 col-12 mb-3">
+                    <div class="pb-card">
+                        <div class="pb-card-header"><i class="fa fa-id-card"></i> Foto KTP</div>
+                        <div class="pb-card-body">
+                            <div class="pb-photo-frame">
+                                <?php if ($foto_ktp_url !== '') : ?>
+                                <a href="<?= $foto_ktp_url ?>" target="_blank" title="Lihat ukuran penuh">
+                                    <img src="<?= $foto_ktp_url ?>" alt="Foto KTP">
+                                </a>
+                                <?php else : ?>
+                                <div class="pb-photo-empty"><i class="fa fa-image"></i>Tidak ada foto</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="form-group mb-3">
-                        <a href="<?php echo BASE_URL . '/admin/pasang-baru/cetak_pdf.php?id=' . $pasang_baru['id'] ?>"
-                            target="_blank">
-                            <button type="submit" class="btn btn-primary" data-id="<?php echo $pasang_baru['id'] ?>"><i
-                                    class="fa fa-print"></i>
-                                Cetak</button>
-                        </a>
-
-
-                        <a href="#" data-id="<?= $pasang_baru['id'] ?>"
-                            class="btn btn-primary update-status <?= $pasang_baru['tindak_lanjut'] == 1 ? 'd-none' : '' ?>"><i
-                                class="fa fa-check"></i> Tandai Selesai</a>
-                        <a href="#" data-id="<?= $pasang_baru['id'] ?>"
-                            class="btn btn-danger hapus <?= $pasang_baru['tindak_lanjut'] == 0 ? 'd-none' : '' ?>"><i
-                                class="fa fa-trash"></i> Hapus </a>
-
-
+                <div class="col-lg-6 col-12 mb-3">
+                    <div class="pb-card">
+                        <div class="pb-card-header"><i class="fa fa-home"></i> Foto Rumah</div>
+                        <div class="pb-card-body">
+                            <div class="pb-photo-frame">
+                                <?php if ($foto_rumah_url !== '') : ?>
+                                <a href="<?= $foto_rumah_url ?>" target="_blank" title="Lihat ukuran penuh">
+                                    <img src="<?= $foto_rumah_url ?>" alt="Foto Rumah">
+                                </a>
+                                <?php else : ?>
+                                <div class="pb-photo-empty"><i class="fa fa-image"></i>Tidak ada foto</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
 
         </div>
@@ -213,32 +313,18 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
     <script src="../vendors/scripts/script.min.js"></script>
     <script src="../vendors/scripts/process.js"></script>
     <script src="../vendors/scripts/layout-settings.js"></script>
-    <!-- <script src="../src/plugins/apexcharts/apexcharts.min.js"></script> -->
     <script src="../src/plugins/datatables/js/jquery.dataTables.min.js"></script>
     <script src="../src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
     <script src="../src/plugins/datatables/js/dataTables.responsive.min.js"></script>
     <script src="../src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
-    <!-- <script src="../vendors/scripts/dashboard3.js"></script> -->
     <script src="../src/plugins/sweetalert2/sweetalert2.all.js"></script>
     <script src="../src/plugins/toastr/toastr.min.js"></script>
 
-
-
     <script>
-    function preview() {
-        frame.src = URL.createObjectURL(event.target.files[0]);
-    }
-
-    function clearImage() {
-        document.getElementById('formFile').value = null;
-        frame.src = "";
-    }
-
     $(document).on('click', '.update-status', function(e) {
         e.preventDefault();
 
         var id = $(this).data('id');
-        console.log(id);
         swal({
             title: 'Tandai Telah Selesai ?',
             text: '',
@@ -262,12 +348,12 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
                         if ($.isEmptyObject(response.error)) {
                             if (response.success == 1) {
 
-                                var statusElement = $('.badge');
+                                var statusElement = $('[data-status-badge]');
 
                                 statusElement.removeClass('badge-info badge-success');
                                 statusElement.addClass(response.status == 0 ? 'badge-info' :
                                     'badge-success');
-                                statusElement.text(response.status == 0 ? 'Proses' :
+                                statusElement.text(response.status == 0 ? 'Dalam Proses' :
                                     'Selesai');
                                 $('.update-status').addClass('d-none');
                                 $('.hapus').removeClass('d-none');
@@ -321,7 +407,6 @@ if ($pasang_baru['latitude'] == null && $pasang_baru['longitude'] == null) {
     var type = '<?php echo $_SESSION['type'] ?>'
 
     swal({
-        // title: 'Nice job',
         text: pesan,
         type: type,
     });

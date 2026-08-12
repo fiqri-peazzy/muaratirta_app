@@ -147,7 +147,7 @@ if (isset($_POST['daftar-baru'])) {
         $errors[] = 'Mohon Upload Foto KTP anda';
     }
     if (!empty($_FILES['foto_rumah']['name'])) {
-        $rumah_error = validateImageUpload($_FILES['foto_rumah'], ['jpg', 'jpeg']);
+        $rumah_error = validateImageUpload($_FILES['foto_rumah'], ['jpg', 'jpeg', 'png']);
         if ($rumah_error !== null) {
             $errors[] = $rumah_error;
         } else {
@@ -176,16 +176,29 @@ if (isset($_POST['daftar-baru'])) {
 
     if (empty($errors)) {
         unset($_POST['daftar-baru']);
+        // latitude/longitude kolomnya NOT NULL tanpa default di DB, sementara
+        // field ini opsional (cuma keisi kalau user izinkan GPS browser).
+        $_POST['latitude'] = $_POST['latitude'] ?? '';
+        $_POST['longitude'] = $_POST['longitude'] ?? '';
         $_POST = cleanInput($_POST);
-        $daftar_baru = create('pasang_baru', $_POST);
-        $_SESSION['type'] = 'success';
-        $_SESSION['title'] = 'Terima Kasih Telah Melakukan Pendaftaran Sambungan Baru';
-        $_SESSION['messages'] = 'Mohon Menunggu, Data yang anda kirimkan akan segera di tindak lanjut oleh Petugas';
+
+        try {
+            $daftar_baru = create('pasang_baru', $_POST);
+            $_SESSION['type'] = 'success';
+            $_SESSION['title'] = 'Terima Kasih Telah Melakukan Pendaftaran Sambungan Baru';
+            $_SESSION['messages'] = 'Mohon Menunggu, Data yang anda kirimkan akan segera di tindak lanjut oleh Petugas';
+        } catch (\Throwable $e) {
+            error_log('daftar-baru insert error: ' . $e->getMessage());
+            $_SESSION['type'] = 'error';
+            $_SESSION['title'] = 'Gagal Mengirim Data';
+            $_SESSION['messages'] = 'Terjadi kesalahan pada server, silakan coba lagi atau hubungi admin';
+        }
         header('Location:' . BASE_URL . '/pasang-baru');
         exit();
     } else {
         $_SESSION['type'] = 'error';
         $_SESSION['title'] = 'Gagal Mengirim Data';
+        $_SESSION['messages'] = implode('; ', $errors);
     }
 }
 

@@ -36,7 +36,23 @@ if (!function_exists('validateImageUpload')) {
     function validateImageUpload($file, array $allowedExtensions = ['jpg', 'jpeg', 'png'], $maxSizeBytes = 5 * 1024 * 1024)
     {
         if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
-            return 'Gagal upload file (upload tidak lengkap atau terputus)';
+            $code = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+            switch ($code) {
+                case UPLOAD_ERR_INI_SIZE:
+                case UPLOAD_ERR_FORM_SIZE:
+                    $maxIni = ini_get('upload_max_filesize');
+                    return 'Ukuran file melebihi batas server (maksimal ' . $maxIni . '). Coba kompres/perkecil foto dulu.';
+                case UPLOAD_ERR_PARTIAL:
+                    return 'Upload terputus di tengah jalan, coba upload ulang';
+                case UPLOAD_ERR_NO_FILE:
+                    return 'Tidak ada file yang dipilih';
+                case UPLOAD_ERR_NO_TMP_DIR:
+                case UPLOAD_ERR_CANT_WRITE:
+                case UPLOAD_ERR_EXTENSION:
+                    return 'Server gagal memproses file, silakan coba lagi';
+                default:
+                    return 'Gagal upload file (kode error: ' . $code . ')';
+            }
         }
         if ($file['size'] > $maxSizeBytes) {
             return 'Ukuran file maksimal ' . round($maxSizeBytes / 1024 / 1024) . 'MB';
