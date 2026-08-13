@@ -14,7 +14,6 @@ composer.lock
 /assets/staff/
 /image/pengaduan/
 /uploads/
-/admin/src/plugins/*/dist/ 
 
 # Log Files (Pesan error/debug sistem)
 error_log

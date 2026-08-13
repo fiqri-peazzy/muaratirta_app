@@ -8,9 +8,8 @@ if (isset($_GET['search'])) {
     $like = '%' . $search . '%';
     $stmt->bind_param('ss', $like, $like);
     $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $all_berita = $result->fetch_all(MYSQLI_ASSOC);
+    $all_berita = stmtFetchAllAssoc($stmt);
+    if (count($all_berita) > 0) {
         $page_header = 'Hasil Pencarian Untuk ' . htmlspecialchars($search) . '...';
         $itemsPerPage = 6;
         $totalItems = count($all_berita);

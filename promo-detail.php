@@ -18,7 +18,7 @@ $sql = "SELECT * FROM informasi WHERE tag='Promo' AND slug != ? ORDER BY tanggal
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $slug);
 $stmt->execute();
-$promo_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$promo_terbaru = stmtFetchAllAssoc($stmt);
 ?>
 
 <!DOCTYPE html>

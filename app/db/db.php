@@ -14,6 +14,42 @@ function executeQuery($sql, $data)
     return $stmt;
 }
 
+/**
+ * Pengganti $stmt->get_result()->fetch_all(MYSQLI_ASSOC) yang tidak butuh
+ * ekstensi mysqlnd (hosting produksi cuma punya libmysqlclient, get_result()
+ * fatal "undefined method" di sana walau lancar di lokal yang ada mysqlnd).
+ */
+function stmtFetchAllAssoc($stmt)
+{
+    $meta = $stmt->result_metadata();
+    if (!$meta) {
+        return [];
+    }
+
+    $row = [];
+    $bindParams = [];
+    while ($field = $meta->fetch_field()) {
+        $row[$field->name] = null;
+        $bindParams[] = &$row[$field->name];
+    }
+    call_user_func_array([$stmt, 'bind_result'], $bindParams);
+
+    $rows = [];
+    while ($stmt->fetch()) {
+        $rows[] = array_map(fn($v) => $v, $row);
+    }
+    return $rows;
+}
+
+/**
+ * Pengganti $stmt->get_result()->fetch_assoc() - lihat stmtFetchAllAssoc().
+ */
+function stmtFetchAssoc($stmt)
+{
+    $rows = stmtFetchAllAssoc($stmt);
+    return $rows[0] ?? null;
+}
+
 function addOrderByClause($sql, $orderBy)
 {
     if (!empty($orderBy)) {
@@ -32,7 +68,7 @@ function selectAll($table, $conditions = [], $orderBy = null)
         $stmt = $conn->prepare($sql);
 
         $stmt->execute();
-        $records = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $records = stmtFetchAllAssoc($stmt);
         return $records;
     } else {
         $i = 0;
@@ -47,7 +83,7 @@ function selectAll($table, $conditions = [], $orderBy = null)
         $sql = addOrderByClause($sql, $orderBy);
 
         $stmt = executeQuery($sql, $conditions);
-        $records = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $records = stmtFetchAllAssoc($stmt);
         return $records;
     }
 }
@@ -73,7 +109,7 @@ function selectOne($table, $conditions)
     }
     $sql = $sql . " LIMIT 1";
     $stmt = executeQuery($sql, $conditions);
-    $records = $stmt->get_result()->fetch_assoc();
+    $records = stmtFetchAssoc($stmt);
     return $records;
 }
 

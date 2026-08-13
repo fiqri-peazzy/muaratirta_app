@@ -16,7 +16,7 @@ $sql = "SELECT * FROM informasi WHERE tag='Info Gangguan' AND id != ? ORDER BY t
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $info_gangguan['id']);
 $stmt->execute();
-$info_gangguan_terbaru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$info_gangguan_terbaru = stmtFetchAllAssoc($stmt);
 ?>
 <!DOCTYPE html>
 <html lang="id">

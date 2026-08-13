@@ -14,7 +14,7 @@ function getStaff()
 
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    $records = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $records = stmtFetchAllAssoc($stmt);
     return $records;
 }
 

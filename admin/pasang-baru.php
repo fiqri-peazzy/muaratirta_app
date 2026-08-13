@@ -24,7 +24,7 @@ if (isset($_GET['range'])) {
     $sql = "SELECT * FROM pasang_baru " . $dateRange;
     $stmt = $conn->prepare($sql);
     $stmt->execute();
-    $all_pasang_baru = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $all_pasang_baru = stmtFetchAllAssoc($stmt);
     $head = ($selectedRange == 0 ? 'Pendaftaran SB Pelanggan' : ($selectedRange == 1 ? 'Pendftaran SB hari ini' : ($selectedRange == 7 ? 'Pendftaran SB Dari 7 Hari' : 'Pendftaran SB Dari 30 Hari')));
 } else {
     $all_pasang_baru = selectAll('pasang_baru',[],'created_at');
