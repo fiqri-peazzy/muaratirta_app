@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/u1369127/public_html/
+    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R .htaccess $DEPLOYPATH
+    - /bin/cp -R .user.ini $DEPLOYPATH
