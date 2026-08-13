@@ -1,7 +1,5 @@
 <?php
 
-// Kredensial database diambil dari .env (lihat DB_* di bawah APP_ENV),
-// jadi tidak perlu comment/uncomment manual antara lokal dan production.
 $host = $_ENV['DB_HOST'] ?? 'localhost';
 $user = $_ENV['DB_USER'] ?? 'root';
 $pass = $_ENV['DB_PASS'] ?? '';
