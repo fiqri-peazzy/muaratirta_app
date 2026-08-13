@@ -102,9 +102,12 @@ if (isset($_GET['id'])) {
         margin-left: 18mm;
     }
 
-    * {
+    body, table, tr, td, div, span, strong, a, img, h1, h2, h3, h4, h5, p {
         margin: 0;
         padding: 0;
+    }
+
+    body {
         font-family: "Times New Roman", Times, serif;
         color: #26313f;
         line-height: 1.4;
