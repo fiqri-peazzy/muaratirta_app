@@ -1,7 +1,6 @@
 # Konfigurasi & Environment (Kredensial)
 .env
 .env.backup
-app/db/conn.php
 
 # Vendor / Dependencies (Sebaiknya gunakan composer.json untuk install di server)
 /vendor/
