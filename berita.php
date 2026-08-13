@@ -5,6 +5,7 @@ if (isset($_GET['search'])) {
     $search = $_GET['search'];
     $sql = "SELECT * FROM informasi WHERE tag='Berita' AND (judul LIKE ? OR deskripsi LIKE ?)";
     $stmt = $conn->prepare($sql);
+    prepStmtForFetch($stmt);
     $like = '%' . $search . '%';
     $stmt->bind_param('ss', $like, $like);
     $stmt->execute();

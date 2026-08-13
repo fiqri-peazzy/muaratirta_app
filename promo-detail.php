@@ -16,6 +16,7 @@ if (!empty($slug)) {
 
 $sql = "SELECT * FROM informasi WHERE tag='Promo' AND slug != ? ORDER BY tanggal_buat DESC LIMIT 4";
 $stmt = $conn->prepare($sql);
+prepStmtForFetch($stmt);
 $stmt->bind_param("s", $slug);
 $stmt->execute();
 $promo_terbaru = stmtFetchAllAssoc($stmt);

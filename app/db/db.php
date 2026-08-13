@@ -7,6 +7,7 @@ function executeQuery($sql, $data)
 {
     global $conn;
     $stmt = $conn->prepare($sql);
+    prepStmtForFetch($stmt);
     $values = array_values($data);
     $types = str_repeat('s', count($values));
     $stmt->bind_param($types, ...$values);
@@ -15,12 +16,25 @@ function executeQuery($sql, $data)
 }
 
 /**
+ * Wajib dipanggil setelah prepare() tapi SEBELUM execute(), supaya kolom
+ * TEXT/BLOB/LONGTEXT tidak dialokasikan sebesar kapasitas teoritisnya (bisa
+ * sampai 4GB untuk LONGTEXT) saat bind_result() dipakai tanpa mysqlnd -
+ * lihat stmtFetchAllAssoc().
+ */
+function prepStmtForFetch($stmt)
+{
+    $stmt->attr_set(MYSQLI_STMT_ATTR_UPDATE_MAX_LENGTH, true);
+}
+
+/**
  * Pengganti $stmt->get_result()->fetch_all(MYSQLI_ASSOC) yang tidak butuh
  * ekstensi mysqlnd (hosting produksi cuma punya libmysqlclient, get_result()
  * fatal "undefined method" di sana walau lancar di lokal yang ada mysqlnd).
+ * $stmt harus sudah di-prepStmtForFetch() sebelum execute().
  */
 function stmtFetchAllAssoc($stmt)
 {
+    $stmt->store_result();
     $meta = $stmt->result_metadata();
     if (!$meta) {
         return [];
@@ -66,6 +80,7 @@ function selectAll($table, $conditions = [], $orderBy = null)
         $sql = addOrderByClause($sql, $orderBy);
 
         $stmt = $conn->prepare($sql);
+        prepStmtForFetch($stmt);
 
         $stmt->execute();
         $records = stmtFetchAllAssoc($stmt);

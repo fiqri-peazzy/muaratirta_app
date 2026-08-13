@@ -13,6 +13,7 @@ function getStaff()
     $sql = 'SELECT s.*,j.bagian FROM staff as s INNER JOIN jabatan as j ON s.kd_bagian=j.kd_bagian';
 
     $stmt = $conn->prepare($sql);
+    prepStmtForFetch($stmt);
     $stmt->execute();
     $records = stmtFetchAllAssoc($stmt);
     return $records;

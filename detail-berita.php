@@ -14,6 +14,7 @@ if (!empty($slug)) {
 }
 $sql = "SELECT * FROM informasi WHERE tag='Berita' AND id != ? ORDER BY tanggal_buat DESC LIMIT 5";
 $stmt = $conn->prepare($sql);
+prepStmtForFetch($stmt);
 $stmt->bind_param('i', $berita['id']);
 $stmt->execute();
 $berita_terbaru = stmtFetchAllAssoc($stmt);

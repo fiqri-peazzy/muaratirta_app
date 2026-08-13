@@ -24,6 +24,7 @@ if (isset($_GET['range'])) {
 
     $sql = "SELECT * FROM pengaduan " . $dateRange;
     $stmt = $conn->prepare($sql);
+    prepStmtForFetch($stmt);
     $stmt->execute();
     $all_keluhan = stmtFetchAllAssoc($stmt);
     $head = ($selectedRange == 0 ? 'Keluhan Pelanggan' : ($selectedRange == 1 ? 'Keluhan hari ini' : ($selectedRange == 7 ? 'Keluhan Dari 7 Hari' : 'Keluhan Dari 30 Hari')));
