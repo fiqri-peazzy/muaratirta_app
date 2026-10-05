@@ -433,6 +433,17 @@ include(ROOT_PATH . '/app/controllers/users.php');
                 <!-- Result Card -->
                 <div class="row justify-content-center mb-5">
                     <div class="col-lg-10">
+                        <!-- Loading Card (tampil selama menunggu response ajax tagihan) -->
+                        <div class="tagihan-result-card d-none" id="loading-card" role="status" aria-live="polite">
+                            <div class="tagihan-loading">
+                                <div class="tagihan-spinner"></div>
+                                <p class="tagihan-loading-text">Mengambil data tagihan...</p>
+                                <p class="tagihan-loading-hint d-none" id="loading-slow-hint">
+                                    <i class="bi bi-wifi"></i>
+                                    Koneksi sedang lambat, mohon tunggu sebentar...
+                                </p>
+                            </div>
+                        </div>
                         <div class="tagihan-result-card d-none" id="result-card" data-aos="fade-up">
                             <!-- Capture Container -->
                             <div id="capture-area">
@@ -1138,11 +1149,41 @@ include(ROOT_PATH . '/app/controllers/users.php');
             }
         });
 
+        // Loading state selama menunggu response tagihan
+        var slowHintTimer = null;
+        var tagihanRequestId = 0;
+        var submitBtnHtml = $('#cek_tagihan_form .tagihan-btn-submit').html();
+
+        function setTagihanLoading(isLoading) {
+            var $btn = $('#cek_tagihan_form .tagihan-btn-submit');
+            clearTimeout(slowHintTimer);
+            $('#loading-slow-hint').addClass('d-none');
+
+            if (isLoading) {
+                $btn.prop('disabled', true).html(
+                    '<span class="tagihan-btn-spinner" aria-hidden="true"></span>Memuat...');
+                $('#loading-card').removeClass('d-none');
+                // Tampilkan petunjuk koneksi lambat jika response belum datang
+                slowHintTimer = setTimeout(function() {
+                    $('#loading-slow-hint').removeClass('d-none');
+                }, 6000);
+            } else {
+                $btn.prop('disabled', false).html(submitBtnHtml);
+                $('#loading-card').addClass('d-none');
+            }
+        }
+
         // Form submission
         $('#cek_tagihan_form').on('submit', function(e) {
             e.preventDefault();
             var form = this;
             var formData = new FormData(form);
+
+            // Cegah submit ganda selama request masih berjalan (klik berulang / Enter berulang)
+            if ($(form).find('.tagihan-btn-submit').prop('disabled')) {
+                return;
+            }
+            var requestId = ++tagihanRequestId;
 
             $.ajax({
                 url: $(form).attr('action'),
@@ -1151,13 +1192,22 @@ include(ROOT_PATH . '/app/controllers/users.php');
                 dataType: 'json',
                 processData: false,
                 contentType: false,
+                timeout: 45000,
                 beforeSend: function() {
                     toastr.remove();
                     $('#result-card').addClass('d-none');
                     $('#empty-card').addClass('d-none');
                     $('#tabel-tagihan tbody').empty();
+                    setTagihanLoading(true);
+                },
+                complete: function() {
+                    setTagihanLoading(false);
                 },
                 success: function(response) {
+                    // Abaikan response lama yang datang terlambat
+                    if (requestId !== tagihanRequestId) {
+                        return;
+                    }
                     if ($.isEmptyObject(response.error)) {
                         if (response.status == 'true' && response.pelanggan && response.pelanggan
                             .length > 0) {
@@ -1182,7 +1232,8 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                 openFotoModal(currentNoSambung, currentNama, currentAlamat);
                             });
 
-                            // Fill bills table
+                            // Fill bills table (kosongkan dulu agar baris tidak pernah dobel)
+                            $('#tabel-tagihan tbody').empty();
                             let no = 0;
                             let totalTagihan = 0;
 
@@ -1242,8 +1293,14 @@ include(ROOT_PATH . '/app/controllers/users.php');
                     }
                 },
                 error: function(xhr, status, error) {
-                    toastr.error('Terjadi kesalahan saat mengambil data. Silakan coba lagi.');
-                    console.error('Error:', error);
+                    if (status === 'timeout') {
+                        toastr.error('Server terlalu lama merespons. Periksa koneksi Anda lalu coba lagi.');
+                    } else if (xhr.status === 0) {
+                        toastr.error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+                    } else {
+                        toastr.error('Terjadi kesalahan saat mengambil data. Silakan coba lagi.');
+                    }
+                    console.error('Error:', status, error);
                 }
             });
         });
