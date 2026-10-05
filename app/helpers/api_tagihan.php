@@ -3,19 +3,22 @@
 function getTagihanDetail($id_pel)
 {
     $baseUrl = $_ENV['TAGIHAN_API_URL'] ?? 'http://gorontalo.homeip.net/webapi/pelanggan/getTagihanDetail';
-    return callPelangganApi($baseUrl, $id_pel, 'getTagihanDetail');
+    $token = $_ENV['TAGIHAN_API_TOKEN'] ?? '';
+    return callPelangganApi($baseUrl, $token, $id_pel, 'getTagihanDetail');
 }
 
 /**
- * Ambil nilai retribusi pelanggan. Retribusi adalah nilai tersendiri
- * (tidak termasuk di TAGIHAN), jadi harus ditambahkan ke total tagihan.
+ * Ambil nilai retribusi pelanggan. Jika ada (> 0), TAGIHAN dari API tagihan
+ * sudah termasuk retribusi, jadi dipecah menjadi AIR + RETRIB.
  *
  * @return int|null Nilai retribusi, atau null jika gagal diambil dari API
  */
 function getRetribusiPelanggan($id_pel)
 {
     $baseUrl = $_ENV['RETRIBUSI_API_URL'] ?? 'http://103.133.223.242/webapinew/pelanggan/getRetribusiPelanggan';
-    $data = callPelangganApi($baseUrl, $id_pel, 'getRetribusiPelanggan');
+    // Endpoint retribusi punya token sendiri; fallback ke token tagihan jika belum di-set
+    $token = $_ENV['RETRIBUSI_API_TOKEN'] ?? $_ENV['TAGIHAN_API_TOKEN'] ?? '';
+    $data = callPelangganApi($baseUrl, $token, $id_pel, 'getRetribusiPelanggan');
 
     if (($data['status'] ?? null) !== 'true') {
         return null;
@@ -24,7 +27,7 @@ function getRetribusiPelanggan($id_pel)
     return (int) ($data['pelanggan'][0]['RETRIB'] ?? 0);
 }
 
-function callPelangganApi($baseUrl, $id_pel, $label)
+function callPelangganApi($baseUrl, $token, $id_pel, $label)
 {
     // Validasi ketat: fungsi ini menyusun URL ke API eksternal, jadi $id_pel wajib
     // numeric saja sebelum dipakai (menutup celah injeksi parameter/URL sekalipun
@@ -33,7 +36,6 @@ function callPelangganApi($baseUrl, $id_pel, $label)
         return ['status' => false, 'message' => 'No Sambung tidak valid'];
     }
 
-    $token = $_ENV['TAGIHAN_API_TOKEN'] ?? '';
     $url = $baseUrl . '?token=' . urlencode($token) . '&nosamw=' . urlencode($id_pel);
     $headers = array(
         "Content-Type: application/json; charset=UTF-8"

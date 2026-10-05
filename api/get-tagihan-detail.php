@@ -22,17 +22,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // print_r($data);
 
         // Retribusi dikenakan per periode, mulai RETRIBUSI_START_PERIODE dan seterusnya.
+        // TAGIHAN dari API sudah termasuk retribusi, jadi dipecah: AIR = TAGIHAN - RETRIB.
         // Pelanggan tanpa retribusi / periode sebelumnya = 0; null = gagal diambil dari API
         if (($data['status'] ?? null) === 'true' && !empty($data['pelanggan'])) {
             $retribusi = getRetribusiPelanggan($id_pel);
-            $startPeriode = (int) ($_ENV['RETRIBUSI_START_PERIODE'] ?? 202610);
+            $startPeriode = (int) ($_ENV['RETRIBUSI_START_PERIODE'] ?? 202609);
 
             foreach ($data['pelanggan'] as &$item) {
+                $tagihan = (int) ($item['TAGIHAN'] ?? 0);
+
                 if ($retribusi === null) {
                     $item['RETRIB'] = null;
+                } elseif ((int) ($item['PERIODE'] ?? 0) >= $startPeriode && $tagihan >= $retribusi) {
+                    $item['RETRIB'] = $retribusi;
                 } else {
-                    $item['RETRIB'] = (int) ($item['PERIODE'] ?? 0) >= $startPeriode ? $retribusi : 0;
+                    $item['RETRIB'] = 0;
                 }
+
+                $item['AIR'] = $tagihan - (int) $item['RETRIB'];
             }
             unset($item);
         }

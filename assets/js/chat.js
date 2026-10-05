@@ -262,10 +262,14 @@ async function cekTagihan() {
       html += `<div class="tagihan-item"><label>Pemakaian</label><strong>${
         item.PAKAI || "-"
       } m³</strong></div>`;
+      // TAGIHAN sudah termasuk retribusi; AIR & RETRIB adalah pecahannya
+      html += `<div class="tagihan-item"><label>Air</label><strong>Rp ${formatRupiah(
+        item.AIR ?? item.TAGIHAN ?? 0
+      )}</strong></div>`;
       html += `<div class="tagihan-item"><label>Retribusi</label><strong>${
-        item.RETRIB === null ? "-" : "Rp " + formatRupiah(item.RETRIB || 0)
+        item.RETRIB == null ? "-" : "Rp " + formatRupiah(item.RETRIB)
       }</strong></div>`;
-      html += `<div class="tagihan-item"><label>Tagihan</label><strong class="text-primary">Rp ${formatRupiah(
+      html += `<div class="tagihan-item"><label>Jumlah</label><strong class="text-primary">Rp ${formatRupiah(
         item.TAGIHAN || 0
       )}</strong></div>`;
       html += "</div></div>";
@@ -277,16 +281,15 @@ async function cekTagihan() {
 
     // Send info to chat
     const totalUnpaid = data.pelanggan.length;
-    // Retribusi adalah nilai tersendiri per periode, ditambahkan ke total tagihan
+    // TAGIHAN sudah termasuk retribusi, jadi total cukup dari TAGIHAN
     const totalRetribusi = data.pelanggan.reduce(
       (sum, item) => sum + (parseInt(item.RETRIB) || 0),
       0
     );
-    const totalBill =
-      data.pelanggan.reduce(
-        (sum, item) => sum + parseInt(item.TAGIHAN || 0),
-        0
-      ) + totalRetribusi;
+    const totalBill = data.pelanggan.reduce(
+      (sum, item) => sum + parseInt(item.TAGIHAN || 0),
+      0
+    );
     const retribusiInfo =
       totalRetribusi > 0
         ? ` (termasuk retribusi Rp ${formatRupiah(totalRetribusi)})`

@@ -495,8 +495,9 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                                     <th>No</th>
                                                     <th>Periode</th>
                                                     <th>Kubik (m³)</th>
+                                                    <th>Air</th>
                                                     <th>Retribusi</th>
-                                                    <th>Tagihan</th>
+                                                    <th>Jumlah</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1180,16 +1181,17 @@ include(ROOT_PATH . '/app/controllers/users.php');
 
                             $.each(response.pelanggan, function(index, item) {
                                 no++;
-                                // Retribusi adalah nilai tersendiri per periode, ditambahkan ke total
+                                // TAGIHAN sudah termasuk retribusi; AIR & RETRIB adalah pecahannya
                                 // (RETRIB null = gagal diambil dari API)
-                                const retribusi = parseInt(item.RETRIB) || 0;
-                                totalTagihan += parseInt(item.TAGIHAN) + retribusi;
-                                const retribusiCell = item.RETRIB === null ? '-' : formatRupiah(retribusi);
+                                totalTagihan += parseInt(item.TAGIHAN);
+                                const air = item.AIR ?? item.TAGIHAN;
+                                const retribusiCell = item.RETRIB == null ? '-' : formatRupiah(item.RETRIB);
                                 $('#tabel-tagihan tbody').append(`
                                 <tr>
                                     <td>${no}</td>
                                     <td>${item.PERIODE}</td>
                                     <td>${item.PAKAI}</td>
+                                    <td>${formatRupiah(air)}</td>
                                     <td>${retribusiCell}</td>
                                     <td>${formatRupiah(item.TAGIHAN)}</td>
                                 </tr>
@@ -1199,7 +1201,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                             // Add total row
                             $('#tabel-tagihan tbody').append(`
                             <tr class="tagihan-total-row">
-                                <td colspan="4" style="text-align: center;">
+                                <td colspan="5" style="text-align: center;">
                                     <strong>TOTAL TAGIHAN</strong>
                                 </td>
                                 <td><strong>${formatRupiah(totalTagihan)}</strong></td>
