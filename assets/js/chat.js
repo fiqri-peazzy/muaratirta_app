@@ -262,6 +262,9 @@ async function cekTagihan() {
       html += `<div class="tagihan-item"><label>Pemakaian</label><strong>${
         item.PAKAI || "-"
       } m³</strong></div>`;
+      html += `<div class="tagihan-item"><label>Retribusi</label><strong>${
+        item.RETRIB === null ? "-" : "Rp " + formatRupiah(item.RETRIB || 0)
+      }</strong></div>`;
       html += `<div class="tagihan-item"><label>Tagihan</label><strong class="text-primary">Rp ${formatRupiah(
         item.TAGIHAN || 0
       )}</strong></div>`;
@@ -274,17 +277,27 @@ async function cekTagihan() {
 
     // Send info to chat
     const totalUnpaid = data.pelanggan.length;
-    const totalBill = data.pelanggan.reduce(
-      (sum, item) => sum + parseInt(item.TAGIHAN || 0),
+    // Retribusi adalah nilai tersendiri per periode, ditambahkan ke total tagihan
+    const totalRetribusi = data.pelanggan.reduce(
+      (sum, item) => sum + (parseInt(item.RETRIB) || 0),
       0
     );
+    const totalBill =
+      data.pelanggan.reduce(
+        (sum, item) => sum + parseInt(item.TAGIHAN || 0),
+        0
+      ) + totalRetribusi;
+    const retribusiInfo =
+      totalRetribusi > 0
+        ? ` (termasuk retribusi Rp ${formatRupiah(totalRetribusi)})`
+        : "";
 
     addMessage(
       `Halo, untuk pelanggan ${
         info.NAMA
       } (${noPelanggan}), ditemukan ${totalUnpaid} catatan tagihan dengan total Rp ${formatRupiah(
         totalBill
-      )}.`,
+      )}${retribusiInfo}.`,
       "bot"
     );
   } catch (error) {

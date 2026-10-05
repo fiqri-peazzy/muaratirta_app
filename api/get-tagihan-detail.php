@@ -21,6 +21,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // print_r($data);
 
+        // Retribusi dikenakan per periode, mulai RETRIBUSI_START_PERIODE dan seterusnya.
+        // Pelanggan tanpa retribusi / periode sebelumnya = 0; null = gagal diambil dari API
+        if (($data['status'] ?? null) === 'true' && !empty($data['pelanggan'])) {
+            $retribusi = getRetribusiPelanggan($id_pel);
+            $startPeriode = (int) ($_ENV['RETRIBUSI_START_PERIODE'] ?? 202610);
+
+            foreach ($data['pelanggan'] as &$item) {
+                if ($retribusi === null) {
+                    $item['RETRIB'] = null;
+                } else {
+                    $item['RETRIB'] = (int) ($item['PERIODE'] ?? 0) >= $startPeriode ? $retribusi : 0;
+                }
+            }
+            unset($item);
+        }
+
         if (count($data) > 0) {
             echo json_encode($data);
         } else {

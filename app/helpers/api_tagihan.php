@@ -2,6 +2,30 @@
 
 function getTagihanDetail($id_pel)
 {
+    $baseUrl = $_ENV['TAGIHAN_API_URL'] ?? 'http://gorontalo.homeip.net/webapi/pelanggan/getTagihanDetail';
+    return callPelangganApi($baseUrl, $id_pel, 'getTagihanDetail');
+}
+
+/**
+ * Ambil nilai retribusi pelanggan. Retribusi adalah nilai tersendiri
+ * (tidak termasuk di TAGIHAN), jadi harus ditambahkan ke total tagihan.
+ *
+ * @return int|null Nilai retribusi, atau null jika gagal diambil dari API
+ */
+function getRetribusiPelanggan($id_pel)
+{
+    $baseUrl = $_ENV['RETRIBUSI_API_URL'] ?? 'http://103.133.223.242/webapinew/pelanggan/getRetribusiPelanggan';
+    $data = callPelangganApi($baseUrl, $id_pel, 'getRetribusiPelanggan');
+
+    if (($data['status'] ?? null) !== 'true') {
+        return null;
+    }
+
+    return (int) ($data['pelanggan'][0]['RETRIB'] ?? 0);
+}
+
+function callPelangganApi($baseUrl, $id_pel, $label)
+{
     // Validasi ketat: fungsi ini menyusun URL ke API eksternal, jadi $id_pel wajib
     // numeric saja sebelum dipakai (menutup celah injeksi parameter/URL sekalipun
     // pemanggil saat ini sudah validasi juga - defense in depth).
@@ -9,7 +33,6 @@ function getTagihanDetail($id_pel)
         return ['status' => false, 'message' => 'No Sambung tidak valid'];
     }
 
-    $baseUrl = $_ENV['TAGIHAN_API_URL'] ?? 'http://gorontalo.homeip.net/webapi/pelanggan/getTagihanDetail';
     $token = $_ENV['TAGIHAN_API_TOKEN'] ?? '';
     $url = $baseUrl . '?token=' . urlencode($token) . '&nosamw=' . urlencode($id_pel);
     $headers = array(
@@ -29,11 +52,11 @@ function getTagihanDetail($id_pel)
         curl_close($ch);
 
         if ($response === false) {
-            error_log('getTagihanDetail curl error: ' . $curlError);
+            error_log($label . ' curl error: ' . $curlError);
             return ['status' => false, 'message' => 'Gagal menghubungi server API'];
         }
         if ($httpCode < 200 || $httpCode >= 300) {
-            error_log('getTagihanDetail HTTP ' . $httpCode . ' for id_pel=' . $id_pel);
+            error_log($label . ' HTTP ' . $httpCode . ' for id_pel=' . $id_pel);
             return ['status' => false, 'message' => 'Server API mengembalikan error'];
         }
     } else {
@@ -54,7 +77,7 @@ function getTagihanDetail($id_pel)
 
     $decoded = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('getTagihanDetail invalid JSON response for id_pel=' . $id_pel);
+        error_log($label . ' invalid JSON response for id_pel=' . $id_pel);
         return ['status' => false, 'message' => 'Respon server API tidak valid'];
     }
 

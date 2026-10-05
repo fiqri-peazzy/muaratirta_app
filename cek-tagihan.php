@@ -495,6 +495,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                                     <th>No</th>
                                                     <th>Periode</th>
                                                     <th>Kubik (m³)</th>
+                                                    <th>Retribusi</th>
                                                     <th>Tagihan</th>
                                                 </tr>
                                             </thead>
@@ -1179,12 +1180,17 @@ include(ROOT_PATH . '/app/controllers/users.php');
 
                             $.each(response.pelanggan, function(index, item) {
                                 no++;
-                                totalTagihan += parseInt(item.TAGIHAN);
+                                // Retribusi adalah nilai tersendiri per periode, ditambahkan ke total
+                                // (RETRIB null = gagal diambil dari API)
+                                const retribusi = parseInt(item.RETRIB) || 0;
+                                totalTagihan += parseInt(item.TAGIHAN) + retribusi;
+                                const retribusiCell = item.RETRIB === null ? '-' : formatRupiah(retribusi);
                                 $('#tabel-tagihan tbody').append(`
                                 <tr>
                                     <td>${no}</td>
                                     <td>${item.PERIODE}</td>
                                     <td>${item.PAKAI}</td>
+                                    <td>${retribusiCell}</td>
                                     <td>${formatRupiah(item.TAGIHAN)}</td>
                                 </tr>
                             `);
@@ -1193,7 +1199,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                             // Add total row
                             $('#tabel-tagihan tbody').append(`
                             <tr class="tagihan-total-row">
-                                <td colspan="3" style="text-align: center;">
+                                <td colspan="4" style="text-align: center;">
                                     <strong>TOTAL TAGIHAN</strong>
                                 </td>
                                 <td><strong>${formatRupiah(totalTagihan)}</strong></td>
