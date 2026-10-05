@@ -35,7 +35,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
     <link href="assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
     <?php include(ROOT_PATH . '/include/styles.php'); ?>
     <!-- Cek Tagihan Modern CSS -->
-    <link href="<?= BASE_URL ?>/assets/css/tagihan.css" rel="stylesheet">
+    <link href="<?= BASE_URL ?>/assets/css/tagihan.css?v=<?= filemtime(ROOT_PATH . '/assets/css/tagihan.css') ?>" rel="stylesheet">
     <!-- html2canvas Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -494,10 +494,10 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Periode</th>
-                                                    <th>Kubik (m³)</th>
-                                                    <th>Air</th>
-                                                    <th>Retribusi</th>
-                                                    <th>Jumlah</th>
+                                                    <th>Kubik <span class="tagihan-th-unit">(m³)</span></th>
+                                                    <th>Air <span class="tagihan-th-unit tagihan-th-unit-rp">(Rp)</span></th>
+                                                    <th>Retribusi <span class="tagihan-th-unit tagihan-th-unit-rp">(Rp)</span></th>
+                                                    <th>Jumlah <span class="tagihan-th-unit tagihan-th-unit-rp">(Rp)</span></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1003,6 +1003,13 @@ include(ROOT_PATH . '/app/controllers/users.php');
             }).format(amount);
         }
 
+        // Nilai rupiah untuk sel tabel: prefix "Rp" dibungkus span supaya bisa
+        // disembunyikan di mobile (satuan pindah ke header) agar tabel muat di layar
+        function rupiahCell(amount) {
+            return '<span class="tagihan-rp">Rp\u00a0</span>' +
+                new Intl.NumberFormat('id-ID').format(amount);
+        }
+
         // Capture tagihan as image
         function captureTagihan() {
             const captureArea = document.getElementById('capture-area');
@@ -1185,15 +1192,15 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                 // (RETRIB null = gagal diambil dari API)
                                 totalTagihan += parseInt(item.TAGIHAN);
                                 const air = item.AIR ?? item.TAGIHAN;
-                                const retribusiCell = item.RETRIB == null ? '-' : formatRupiah(item.RETRIB);
+                                const retribusiCell = item.RETRIB == null ? '-' : rupiahCell(item.RETRIB);
                                 $('#tabel-tagihan tbody').append(`
                                 <tr>
                                     <td>${no}</td>
                                     <td>${item.PERIODE}</td>
                                     <td>${item.PAKAI}</td>
-                                    <td>${formatRupiah(air)}</td>
+                                    <td>${rupiahCell(air)}</td>
                                     <td>${retribusiCell}</td>
-                                    <td>${formatRupiah(item.TAGIHAN)}</td>
+                                    <td>${rupiahCell(item.TAGIHAN)}</td>
                                 </tr>
                             `);
                             });
@@ -1204,7 +1211,7 @@ include(ROOT_PATH . '/app/controllers/users.php');
                                 <td colspan="5" style="text-align: center;">
                                     <strong>TOTAL TAGIHAN</strong>
                                 </td>
-                                <td><strong>${formatRupiah(totalTagihan)}</strong></td>
+                                <td><strong>${rupiahCell(totalTagihan)}</strong></td>
                             </tr>
                         `);
 
