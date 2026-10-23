@@ -4,6 +4,10 @@ include(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 if (isset($_POST['add-gallery'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 3]);
 
     if (!empty($_FILES['image']['name'])) {
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
@@ -30,11 +34,15 @@ if (isset($_POST['add-gallery'])) {
         header('Location:' . BASE_URL . '/admin/galeri.php');
         exit();
     } else {
-        $_SESSION['message'] = 'Gagal Tambah data';
+        $_SESSION['message'] = empty($judul) ? 'Judul foto wajib diisi.' : 'Gambar gagal diunggah. Pastikan file berupa JPG/PNG.';
         $_SESSION['type'] = 'error';
     }
 }
 if (isset($_GET['hapus-img'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 3]);
 
     $g_info = selectOne('galeri', ['id' => $_GET['hapus-img']]);
     if (!empty($g_info['image'])) {
@@ -46,4 +54,5 @@ if (isset($_GET['hapus-img'])) {
     }
     $count = deleteF('galeri', $_GET['hapus-img']);
     header('Location:' . BASE_URL . '/admin/galeri.php');
+    exit();
 }

@@ -1,188 +1,130 @@
-<?php include("../path.php"); ?>
 <?php
-
+include("../path.php");
 include(ROOT_PATH . "/app/controllers/users.php");
 include(ROOT_PATH . '/app/helpers/middleware.php');
 adminOnly();
+adminLevel([1, 2]);
 
-if (isset($_GET['range'])) {
-    $selectedRange = $_GET['range'];
-    switch ($selectedRange) {
-        case '7':
-            $dateRange = "WHERE created_at >= CURDATE() - INTERVAL 7 DAY";
-            break;
-        case '30':
-            $dateRange = "WHERE created_at >= CURDATE() - INTERVAL 30 DAY";
-            break;
-        case '1':
-            $dateRange = "WHERE DATE(created_at) = CURRENT_DATE";
-            break;
-        default:
-            $dateRange = "";
-            break;
-    }
+$ranges = [
+    '0' => ['Semua', ''],
+    '1' => ['Hari ini', "WHERE DATE(created_at) = CURRENT_DATE"],
+    '7' => ['7 hari', "WHERE created_at >= CURDATE() - INTERVAL 7 DAY"],
+    '30' => ['30 hari', "WHERE created_at >= CURDATE() - INTERVAL 30 DAY"],
+];
+$range = isset($_GET['range'], $ranges[$_GET['range']]) ? (string) $_GET['range'] : '0';
 
-    $sql = "SELECT * FROM pengaduan " . $dateRange;
-    $stmt = $conn->prepare($sql);
-    prepStmtForFetch($stmt);
-    $stmt->execute();
-    $all_keluhan = stmtFetchAllAssoc($stmt);
-    $head = ($selectedRange == 0 ? 'Keluhan Pelanggan' : ($selectedRange == 1 ? 'Keluhan hari ini' : ($selectedRange == 7 ? 'Keluhan Dari 7 Hari' : 'Keluhan Dari 30 Hari')));
-} else {
-    $all_keluhan = selectAll('pengaduan',[],'created_at');
-    $head = 'Keluhan Pelanggan';
-}
+$stmt = $conn->prepare("SELECT * FROM pengaduan " . $ranges[$range][1] . " ORDER BY created_at DESC");
+prepStmtForFetch($stmt);
+$stmt->execute();
+$all_keluhan = stmtFetchAllAssoc($stmt);
 
+$countOpen = count(array_filter($all_keluhan, function ($r) {
+    return (int) $r['status'] === 0;
+}));
+$countDone = count($all_keluhan) - $countOpen;
+$countToday = count(array_filter($all_keluhan, function ($r) {
+    return date('Y-m-d', strtotime($r['created_at'])) === date('Y-m-d');
+}));
+
+include ROOT_PATH . '/admin/inc/layoutStart.php';
+
+adminPageHeader([
+    'desc' => 'Laporan gangguan dan keluhan yang masuk dari pelanggan melalui website.',
+]);
 ?>
 
-<!DOCTYPE html>
-<html>
+<section class="mini-stats">
+    <div class="mini-stat tone-blue"><span class="kpi-icon"><i class="bi bi-inbox"></i></span>
+        <div><b><?= count($all_keluhan) ?></b><small>Total <?= $range === '0' ? '' : strtolower($ranges[$range][0]) ?></small></div>
+    </div>
+    <div class="mini-stat tone-amber"><span class="kpi-icon"><i class="bi bi-hourglass-split"></i></span>
+        <div><b><?= $countOpen ?></b><small>Perlu ditindak</small></div>
+    </div>
+    <div class="mini-stat tone-green"><span class="kpi-icon"><i class="bi bi-check2-circle"></i></span>
+        <div><b><?= $countDone ?></b><small>Selesai</small></div>
+    </div>
+    <div class="mini-stat tone-violet"><span class="kpi-icon"><i class="bi bi-calendar-event"></i></span>
+        <div><b><?= $countToday ?></b><small>Masuk hari ini</small></div>
+    </div>
+</section>
 
-<head>
-    <!-- Basic Page Info -->
-    <meta charset="utf-8" />
-    <title>
-        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Beranda | Muaratirta Kota Gorontalo'; ?>
-    </title>
-
-    <!-- Site favicon -->
-    <link href="../assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
-
-    <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
-    <?php include ROOT_PATH . '/admin/inc/styleAdmin.php'; ?>
-</head>
-
-<body>
-    <!-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
+<section class="list-panel cards-sm">
+    <div class="list-head">
+        <div>
+            <h2>Daftar Pengaduan <span class="count"><?= count($all_keluhan) ?></span></h2>
+            <p>Klik "Detail" untuk menindaklanjuti atau mencetak laporan.</p>
         </div>
-    </div> -->
-
-    <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
-
-    <?php include ROOT_PATH . '/admin/inc/rightSidebar.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/leftSidebar.php' ?>
-
-
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="main-container">
-        <div class="xs-pd-20-10 pd-ltr-20">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="title">
-                            <h4>Keluhan Pelanggan</h4>
-                        </div>
-                        <nav aria-label="breadcrumb" role="navigation">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="<?php echo BASE_URL . '/admin/' ?>">Beranda</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Keluhan Pelanggan
-                                </li>
-                            </ol>
-                        </nav>
-                    </div>
-
-                </div>
+        <div class="list-tools">
+            <div class="chips" data-dt-filter="#tbl-pengaduan" data-col="4" role="group" aria-label="Filter status">
+                <button type="button" class="chip active" data-value="">Semua</button>
+                <button type="button" class="chip chip-open" data-value="Proses"><span class="dot"></span>Proses <span
+                        class="n"><?= $countOpen ?></span></button>
+                <button type="button" class="chip chip-done" data-value="Selesai"><span class="dot"></span>Selesai <span
+                        class="n"><?= $countDone ?></span></button>
             </div>
-            <div class="card-box pb-10">
-
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="h5 pd-20 mb-0"><?php echo $head; ?></div>
-
-                    </div>
-
-                    <div class="col-md-6 col-sm-12 mb-2">
-                        <div class="d-flex justify-content-between align-items-center float-md-right">
-                            <form method="get" action="<?= BASE_URL . '/admin/pengaduan.php' ?>" class="d-flex p-3">
-
-                                <select name="range" class="form-control mr-2" id="selected_range">
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 0 ? 'selected' : '' ?>
-                                        value="0">Semua Data</option>
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 1 ? 'selected' : '' ?>
-                                        value="1">Hari ini</option>
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 7 ? 'selected' : '' ?>
-                                        value="7">7 Hari</option>
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 30 ? 'selected' : '' ?>
-                                        value="30">30 Hari</option>
-                                </select>
-
-                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                            </form>
-                        </div>
-                    </div>
-
-                </div>
-
-
-
-                <table class="data-table table stripe hover nowrap" id="table">
-
-                    <thead>
-                        <tr>
-                            <th class="table-plus">ID Pelanggan</th>
-                            <th>Nama Lengkap</th>
-                            <th>Alamat</th>
-                            <th>No HP</th>
-                            <th>Isi Pengaduan</th>
-                            <th>Tgl / Waktu</th>
-                            <th>Status</th>
-                            <th class="datatable-nosort">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($all_keluhan as $i) : ?>
-                        <tr>
-                            <td class="table-plus"><?= $i['id_pel'] ?></td>
-                            <td><?= $i['nm_lengkap'] ?></td>
-                            <td><?= $i['alamat'] ?></td>
-                            <td><?= $i['no_hp'] ?></td>
-                            <td><?= $i['isi_pengaduan'] ?></td>
-                            <td><?php echo date('d M,Y', strtotime($i['created_at'])) ?></td>
-                            <td>
-                                <span class="badge badge-pill" data-bgcolor="#e7ebf5"
-                                    data-color="#265ed7"><?php echo ($i['status']) == 0 ? 'Proses' : 'selesai' ?></span>
-
-                            </td>
-                            <td>
-
-                                <div class="table-actions">
-
-                                    <a href="<?= BASE_URL . '/admin/pengaduan/detail.php?id=' . $i['id'] ?>" id="update"
-                                        class="update" style="font-size: 1rem;cursor:pointer;"
-                                        data-id="<?php echo $i['id'] ?>" data-color="#265ed7"><i class="dw dw-eye"></i>
-                                        View</a>
-
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
+            <nav class="seg" aria-label="Rentang waktu">
+                <?php foreach ($ranges as $key => [$label]) : ?>
+                <a href="?range=<?= $key ?>" class="<?= $range === (string) $key ? 'active' : '' ?>"><?= $label ?></a>
+                <?php endforeach; ?>
+            </nav>
         </div>
     </div>
 
-    <?php include ROOT_PATH . '/admin/inc/scriptAdmin.php' ?>
+    <table class="data-table table-cards table hover" id="tbl-pengaduan" data-search="Cari nama, ID pelanggan, isi…"
+        data-empty="Belum ada pengaduan pada rentang waktu ini.">
+        <thead>
+            <tr>
+                <th>Pelapor</th>
+                <th class="datatable-nosort">Isi Pengaduan</th>
+                <th>Kontak</th>
+                <th>Masuk</th>
+                <th>Status</th>
+                <th class="datatable-nosort text-right">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($all_keluhan as $i) : $open = (int) $i['status'] === 0; ?>
+            <tr>
+                <td class="c-primary">
+                    <div class="cell-user">
+                        <span class="avatar <?= adminAvatarTone($i['nm_lengkap']) ?>"><?= h(adminInitials($i['nm_lengkap'])) ?></span>
+                        <div style="min-width:0">
+                            <a class="cell-title" href="<?= BASE_URL ?>/admin/pengaduan/detail.php?id=<?= (int) $i['id'] ?>"><?= h($i['nm_lengkap']) ?></a>
+                            <span class="cell-sub mono"><?= $i['id_pel'] !== '' ? 'ID ' . h($i['id_pel']) : 'Tanpa ID pelanggan' ?></span>
+                        </div>
+                    </div>
+                </td>
+                <td class="c-block" data-label="Isi pengaduan"><span class="truncate-2"><?= h($i['isi_pengaduan']) ?></span></td>
+                <td data-label="Kontak">
+                    <div style="min-width:0">
+                        <span class="cell-title" style="font-weight:500"><i class="bi bi-telephone text-muted"></i> <?= h($i['no_hp']) ?></span>
+                        <span class="cell-sub"><i class="bi bi-geo-alt"></i><?= h($i['alamat']) ?></span>
+                    </div>
+                </td>
+                <td data-label="Masuk" data-order="<?= strtotime($i['created_at']) ?>">
+                    <div>
+                        <span class="cell-title" style="font-weight:500"><?= h(adminDate($i['created_at'])) ?></span>
+                        <span class="cell-sub"><?= h(adminTimeHint($i['created_at'])) ?></span>
+                    </div>
+                </td>
+                <td class="c-status" data-search="<?= $open ? 'Proses' : 'Selesai' ?>">
+                    <span class="status-pill <?= $open ? 'is-open' : 'is-done' ?>"><?= $open ? 'Proses' : 'Selesai' ?></span>
+                </td>
+                <td class="c-actions">
+                    <div class="row-actions">
+                        <?php if ($wa = adminWaLink($i['no_hp'], 'Halo ' . $i['nm_lengkap'] . ', kami dari PERUMDA Air Minum Muara Tirta terkait pengaduan Anda.')) : ?>
+                        <a class="btn-icon success" href="<?= h($wa) ?>" target="_blank" rel="noopener" title="Hubungi via WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <?php endif; ?>
+                        <a class="btn-chip" href="<?= BASE_URL ?>/admin/pengaduan/detail.php?id=<?= (int) $i['id'] ?>"><i class="bi bi-eye"></i> Detail</a>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</section>
 
-
-
+<?php include ROOT_PATH . '/admin/inc/layoutEnd.php'; ?>
 </body>
 
 </html>

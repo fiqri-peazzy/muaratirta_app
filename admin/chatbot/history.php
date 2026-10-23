@@ -1,115 +1,91 @@
-<?php include("../../path.php"); ?>
 <?php
+include("../../path.php");
 include(ROOT_PATH . "/app/controllers/chatbot.php");
 include(ROOT_PATH . '/app/helpers/middleware.php');
 adminOnly();
+adminLevel([1, 2]);
 
 $all_history = selectAll('chat_history', [], 'created_at');
+$sessions = count(array_unique(array_column($all_history, 'session_id')));
+$today = count(array_filter($all_history, function ($h) {
+    return date('Y-m-d', strtotime($h['created_at'])) === date('Y-m-d');
+}));
+$intents = array_count_values(array_map(function ($h) {
+    return $h['intent'] ?: 'umum';
+}, $all_history));
+arsort($intents);
+$topIntent = $intents ? array_key_first($intents) : '-';
+
+include ROOT_PATH . '/admin/inc/layoutStart.php';
+
+adminPageHeader([
+    'desc' => 'Percakapan pelanggan dengan asisten chatbot di website. Pakai untuk menemukan pertanyaan yang belum ada di FAQ.',
+]);
 ?>
 
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="utf-8" />
-    <title>Riwayat Chatbot | Admin Muaratirta</title>
-    <link href="../../assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <link rel="stylesheet" type="text/css" href="../vendors/styles/core.css" />
-    <link rel="stylesheet" type="text/css" href="../vendors/styles/icon-font.min.css" />
-    <link rel="stylesheet" type="text/css" href="../src/plugins/datatables/css/dataTables.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="../src/plugins/datatables/css/responsive.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="../vendors/styles/style.css" />
-    <link rel="stylesheet" href="../src/plugins/sweetalert2/sweetalert2.css">
-    <style>
-    .chat-log {
-        max-width: 300px;
-        white-space: normal;
-        font-size: 0.85rem;
-    }
-
-    .bot-text {
-        color: #265ed7;
-    }
-
-    .user-text {
-        color: #555;
-    }
-    </style>
-</head>
-
-<body>
-    <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/rightSidebar.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/leftSidebar.php' ?>
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="main-container">
-        <div class="xs-pd-20-10 pd-ltr-20">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="title">
-                            <h4>Riwayat Percakapan Chatbot</h4>
-                        </div>
-                        <nav aria-label="breadcrumb" role="navigation">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="<?php echo BASE_URL . '/admin' ?>">Beranda</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Riwayat Chat</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-box pb-10">
-                <div class="pd-20">
-                    <h4 class="h5 mb-0">Logs Chat (Terbaru)</h4>
-                </div>
-                <table class="data-table table nowrap" id="table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Pesan User</th>
-                            <th>Respon Bot</th>
-                            <th>Intent</th>
-                            <th>Sesi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($all_history as $h) : ?>
-                        <tr>
-                            <td class="small"><?php echo date('d/m/y H:i', strtotime($h['created_at'])); ?></td>
-                            <td>
-                                <div class="chat-log user-text"><strong>Q:</strong>
-                                    <?php echo htmlspecialchars($h['user_message']); ?></div>
-                            </td>
-                            <td>
-                                <div class="chat-log bot-text"><strong>A:</strong>
-                                    <?php echo htmlspecialchars(substr($h['bot_response'], 0, 200)) . (strlen($h['bot_response']) > 200 ? '...' : ''); ?>
-                                </div>
-                            </td>
-                            <td><span class="badge badge-outline-secondary"><?php echo $h['intent']; ?></span></td>
-                            <td class="small"><?php echo substr($h['session_id'], -8); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<section class="mini-stats">
+    <div class="mini-stat tone-blue"><span class="kpi-icon"><i class="bi bi-chat-dots"></i></span>
+        <div><b><?= count($all_history) ?></b><small>Total pesan</small></div>
     </div>
-    <script src="../vendors/scripts/core.js"></script>
-    <script src="../vendors/scripts/script.min.js"></script>
-    <script src="../vendors/scripts/process.js"></script>
-    <script src="../vendors/scripts/layout-settings.js"></script>
-    <script src="../src/plugins/apexcharts/apexcharts.min.js"></script>
-    <script src="../src/plugins/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="../src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../src/plugins/datatables/js/dataTables.responsive.min.js"></script>
-    <script src="../src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
-    <script src="../vendors/scripts/dashboard3.js"></script>
-    <script src="../src/plugins/sweetalert2/sweetalert2.all.js"></script>
+    <div class="mini-stat tone-violet"><span class="kpi-icon"><i class="bi bi-people"></i></span>
+        <div><b><?= $sessions ?></b><small>Sesi percakapan</small></div>
+    </div>
+    <div class="mini-stat tone-green"><span class="kpi-icon"><i class="bi bi-calendar-event"></i></span>
+        <div><b><?= $today ?></b><small>Pesan hari ini</small></div>
+    </div>
+    <div class="mini-stat tone-amber"><span class="kpi-icon"><i class="bi bi-lightning"></i></span>
+        <div><b style="font-size:16px"><?= h($topIntent) ?></b><small>Topik terbanyak</small></div>
+    </div>
+</section>
+
+<section class="list-panel cards-sm">
+    <div class="list-head">
+        <div>
+            <h2>Log Percakapan <span class="count"><?= count($all_history) ?></span></h2>
+            <p>Terbaru di atas.</p>
+        </div>
+        <?php if ($intents) : ?>
+        <div class="chips" data-dt-filter="#tbl-history" data-col="1" role="group" aria-label="Filter topik">
+            <button type="button" class="chip active" data-value="">Semua</button>
+            <?php foreach (array_slice($intents, 0, 5, true) as $intent => $n) : ?>
+            <button type="button" class="chip" data-value="<?= h($intent) ?>"><?= h($intent) ?> <span class="n"><?= $n ?></span></button>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    <table class="data-table table-cards table" id="tbl-history" data-search="Cari isi pesan…" data-empty="Belum ada percakapan.">
+        <thead>
+            <tr>
+                <th class="datatable-nosort">Percakapan</th>
+                <th>Topik</th>
+                <th>Sesi</th>
+                <th>Waktu</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($all_history as $h) : $intent = $h['intent'] ?: 'umum'; ?>
+            <tr>
+                <td class="c-block" data-label="Percakapan">
+                    <div class="chat-thread">
+                        <div class="bubble user"><small>Pelanggan</small><?= h($h['user_message']) ?></div>
+                        <div class="bubble bot"><small><i class="bi bi-robot"></i> Chatbot</small><?= h(adminExcerpt($h['bot_response'], 320)) ?></div>
+                    </div>
+                </td>
+                <td class="c-status" data-search="<?= h($intent) ?>"><span class="tag tag-blue"><?= h($intent) ?></span></td>
+                <td data-label="Sesi"><span class="mono" title="<?= h($h['session_id']) ?>">…<?= h(substr($h['session_id'], -8)) ?></span></td>
+                <td class="c-primary" data-label="Waktu" data-order="<?= strtotime($h['created_at']) ?>">
+                    <div>
+                        <span class="cell-title" style="font-weight:500"><?= h(adminDate($h['created_at'], true)) ?></span>
+                        <span class="cell-sub"><?= h(adminTimeHint($h['created_at'])) ?></span>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</section>
+
+<?php include ROOT_PATH . '/admin/inc/layoutEnd.php'; ?>
 </body>
 
 </html>

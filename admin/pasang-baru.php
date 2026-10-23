@@ -3,248 +3,132 @@ include('../path.php');
 include(ROOT_PATH . "/app/controllers/users.php");
 include(ROOT_PATH . '/app/helpers/middleware.php');
 adminOnly();
+adminLevel([1, 2]);
 
-if (isset($_GET['range'])) {
-    $selectedRange = $_GET['range'];
-    switch ($selectedRange) {
-        case '7':
-            $dateRange = "WHERE created_at >= CURDATE() - INTERVAL 7 DAY";
-            break;
-        case '30':
-            $dateRange = "WHERE created_at >= CURDATE() - INTERVAL 30 DAY";
-            break;
-        case '1':
-            $dateRange = "WHERE DATE(created_at) = CURRENT_DATE";
-            break;
-        default:
-            $dateRange = "";
-            break;
-    }
+$ranges = [
+    '0' => ['Semua', ''],
+    '1' => ['Hari ini', "WHERE DATE(created_at) = CURRENT_DATE"],
+    '7' => ['7 hari', "WHERE created_at >= CURDATE() - INTERVAL 7 DAY"],
+    '30' => ['30 hari', "WHERE created_at >= CURDATE() - INTERVAL 30 DAY"],
+];
+$range = isset($_GET['range'], $ranges[$_GET['range']]) ? (string) $_GET['range'] : '0';
 
-    $sql = "SELECT * FROM pasang_baru " . $dateRange;
-    $stmt = $conn->prepare($sql);
-    prepStmtForFetch($stmt);
-    $stmt->execute();
-    $all_pasang_baru = stmtFetchAllAssoc($stmt);
-    $head = ($selectedRange == 0 ? 'Pendaftaran SB Pelanggan' : ($selectedRange == 1 ? 'Pendftaran SB hari ini' : ($selectedRange == 7 ? 'Pendftaran SB Dari 7 Hari' : 'Pendftaran SB Dari 30 Hari')));
-} else {
-    $all_pasang_baru = selectAll('pasang_baru',[],'created_at');
-    $head = 'Pendaftaran SB';
-}
+$stmt = $conn->prepare("SELECT * FROM pasang_baru " . $ranges[$range][1] . " ORDER BY created_at DESC");
+prepStmtForFetch($stmt);
+$stmt->execute();
+$all_pasang_baru = stmtFetchAllAssoc($stmt);
 
+$countOpen = count(array_filter($all_pasang_baru, function ($r) {
+    return (int) $r['tindak_lanjut'] === 0;
+}));
+$countDone = count($all_pasang_baru) - $countOpen;
+$countDocs = count(array_filter($all_pasang_baru, function ($r) {
+    return !empty($r['foto_ktp']) && !empty($r['foto_rumah']);
+}));
+
+include ROOT_PATH . '/admin/inc/layoutStart.php';
+
+adminPageHeader([
+    'desc' => 'Permohonan sambungan air baru yang didaftarkan calon pelanggan.',
+]);
 ?>
 
-<!DOCTYPE html>
-<html>
+<section class="mini-stats">
+    <div class="mini-stat tone-blue"><span class="kpi-icon"><i class="bi bi-receipt-cutoff"></i></span>
+        <div><b><?= count($all_pasang_baru) ?></b><small>Total pendaftaran</small></div>
+    </div>
+    <div class="mini-stat tone-amber"><span class="kpi-icon"><i class="bi bi-hourglass-split"></i></span>
+        <div><b><?= $countOpen ?></b><small>Menunggu proses</small></div>
+    </div>
+    <div class="mini-stat tone-green"><span class="kpi-icon"><i class="bi bi-check2-circle"></i></span>
+        <div><b><?= $countDone ?></b><small>Selesai</small></div>
+    </div>
+    <div class="mini-stat tone-violet"><span class="kpi-icon"><i class="bi bi-file-earmark-text"></i></span>
+        <div><b><?= $countDocs ?></b><small>Dokumen lengkap</small></div>
+    </div>
+</section>
 
-<head>
-    <!-- Basic Page Info -->
-    <meta charset="utf-8" />
-    <title>
-        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Beranda | Muaratirta Kota Gorontalo'; ?>
-    </title>
-
-    <!-- Site favicon -->
-    <link href="../assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
-
-    <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
-    <?php include ROOT_PATH . '/admin/inc/styleAdmin.php'; ?>
-</head>
-
-<body>
-    <!-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
+<section class="list-panel cards-sm">
+    <div class="list-head">
+        <div>
+            <h2>Daftar Pendaftaran <span class="count"><?= count($all_pasang_baru) ?></span></h2>
+            <p>Periksa dokumen lalu tandai selesai dari halaman detail.</p>
         </div>
-    </div> -->
-
-    <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
-
-    <?php include ROOT_PATH . '/admin/inc/rightSidebar.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/leftSidebar.php' ?>
-
-
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="main-container">
-        <div class="xs-pd-20-10 pd-ltr-20">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="title">
-                            <h4>Pendaftaran Pemasangan Baru</h4>
-                        </div>
-                        <nav aria-label="breadcrumb" role="navigation">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="<?php echo BASE_URL . '/admin/?page-title=Dashboard-Admin' ?>">Beranda</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Pendaftaran Pemasangan Baru
-                                </li>
-                            </ol>
-                        </nav>
-                    </div>
-
-                </div>
+        <div class="list-tools">
+            <div class="chips" data-dt-filter="#tbl-pasang" data-col="4" role="group" aria-label="Filter status">
+                <button type="button" class="chip active" data-value="">Semua</button>
+                <button type="button" class="chip chip-open" data-value="Proses"><span class="dot"></span>Proses <span
+                        class="n"><?= $countOpen ?></span></button>
+                <button type="button" class="chip chip-done" data-value="Selesai"><span class="dot"></span>Selesai <span
+                        class="n"><?= $countDone ?></span></button>
             </div>
-            <div class="card-box pb-10">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="h5 pd-20 mb-0"><?php echo $head; ?></div>
-
-                    </div>
-
-                    <div class="col-md-6 col-sm-12 mb-2">
-                        <div class="d-flex justify-content-between align-items-center float-md-right">
-                            <form method="get" action="<?= BASE_URL . '/admin/pasang-baru.php' ?>" class="d-flex p-3">
-
-                                <select name="range" class="form-control mr-2" id="selected_range">
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 0 ? 'selected' : '' ?> value="0">Semua Data</option>
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 1 ? 'selected' : '' ?> value="1">Hari ini</option>
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 7 ? 'selected' : '' ?> value="7">7 Hari</option>
-                                    <option <?= isset($_GET['range']) && $_GET['range'] == 30 ? 'selected' : '' ?> value="30">30 Hari</option>
-                                </select>
-
-                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                            </form>
-                        </div>
-                    </div>
-
-                </div>
-                <table class="data-table table nowrap" id="table-1">
-                    <thead>
-                        <tr>
-                            <th class="table-plus">id</th>
-                            <th>alamat</th>
-                            <th>tanggal / waktu</th>
-                            <th>Foto Ktp</th>
-                            <th>Foto Rumah</th>
-                            <th>status</th>
-                            <th class="datatable-nosort">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $no = 1;
-                        foreach ($all_pasang_baru as $i) : ?>
-                            <tr>
-                                <td>
-                                    <?php echo $no++ ?>
-                                </td>
-                                <td><?php echo substr($i['alamat'], 0, 12) . '..' ?></td>
-                                <td><?php echo date('d M,Y', strtotime($i['created_at'])) ?></td>
-                                <td><?php echo substr($i['foto_ktp'], 0, 12) . '..' ?></td>
-                                <td><?php echo substr($i['foto_rumah'], 0, 12) . '..' ?></td>
-                                <td>
-                                    <span class="badge badge-pill" data-bgcolor="#e7ebf5" data-color="#265ed7"><?php echo ($i['tindak_lanjut']) == 0 ? 'Proses' : 'selesai' ?></span>
-                                </td>
-
-                                <td>
-                                    <div class="table-actions">
-                                        <a href="<?php echo BASE_URL . '/admin/pasang-baru/detail.php?id=' . $i['id'] ?>" data-color="#265ed7" style="font-size: 1rem;"><i class="icon-copy dw dw-eye"></i> View
-                                        </a>
-
-
-
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-
-            </div>
-
+            <nav class="seg" aria-label="Rentang waktu">
+                <?php foreach ($ranges as $key => [$label]) : ?>
+                <a href="?range=<?= $key ?>" class="<?= $range === (string) $key ? 'active' : '' ?>"><?= $label ?></a>
+                <?php endforeach; ?>
+            </nav>
         </div>
     </div>
 
-    <?php include ROOT_PATH . '/admin/inc/scriptAdmin.php' ?>
-    <script>
-        $(document).on('click', '.update', function(e) {
+    <table class="data-table table-cards table hover" id="tbl-pasang" data-search="Cari alamat, no. HP, no. registrasi…"
+        data-empty="Belum ada pendaftaran pada rentang waktu ini.">
+        <thead>
+            <tr>
+                <th>Pendaftaran</th>
+                <th>Kontak</th>
+                <th class="datatable-nosort">Dokumen</th>
+                <th>Masuk</th>
+                <th>Status</th>
+                <th class="datatable-nosort text-right">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($all_pasang_baru as $i) :
+                $open = (int) $i['tindak_lanjut'] === 0;
+                $no = 'PB-' . str_pad($i['id'], 5, '0', STR_PAD_LEFT);
+            ?>
+            <tr>
+                <td class="c-primary">
+                    <div class="cell-user">
+                        <span class="avatar av-5"><i class="bi bi-house-door"></i></span>
+                        <div style="min-width:0">
+                            <a class="cell-title" href="<?= BASE_URL ?>/admin/pasang-baru/detail.php?id=<?= (int) $i['id'] ?>"><?= h($i['alamat'] ?: 'Alamat belum diisi') ?></a>
+                            <span class="cell-sub mono"><?= $no ?></span>
+                        </div>
+                    </div>
+                </td>
+                <td data-label="No. HP"><span><i class="bi bi-telephone text-muted"></i> <?= h($i['no_hp'] ?: '-') ?></span></td>
+                <td data-label="Dokumen">
+                    <span class="doc-flags">
+                        <span class="doc-flag <?= $i['foto_ktp'] ? 'ok' : '' ?>"><i class="bi <?= $i['foto_ktp'] ? 'bi-check2' : 'bi-x' ?>"></i> KTP</span>
+                        <span class="doc-flag <?= $i['foto_rumah'] ? 'ok' : '' ?>"><i class="bi <?= $i['foto_rumah'] ? 'bi-check2' : 'bi-x' ?>"></i> Rumah</span>
+                    </span>
+                </td>
+                <td data-label="Masuk" data-order="<?= strtotime($i['created_at']) ?>">
+                    <div>
+                        <span class="cell-title" style="font-weight:500"><?= h(adminDate($i['created_at'])) ?></span>
+                        <span class="cell-sub"><?= h(adminTimeHint($i['created_at'])) ?></span>
+                    </div>
+                </td>
+                <td class="c-status" data-search="<?= $open ? 'Proses' : 'Selesai' ?>">
+                    <span class="status-pill <?= $open ? 'is-open' : 'is-done' ?>"><?= $open ? 'Proses' : 'Selesai' ?></span>
+                </td>
+                <td class="c-actions">
+                    <div class="row-actions">
+                        <?php if ($wa = adminWaLink($i['no_hp'], 'Halo, kami dari PERUMDA Air Minum Muara Tirta terkait pendaftaran sambungan baru ' . $no . '.')) : ?>
+                        <a class="btn-icon success" href="<?= h($wa) ?>" target="_blank" rel="noopener" title="Hubungi via WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <?php endif; ?>
+                        <a class="btn-icon" href="<?= BASE_URL ?>/admin/pasang-baru/cetak_pdf.php?id=<?= (int) $i['id'] ?>" target="_blank" title="Cetak formulir"><i class="bi bi-printer"></i></a>
+                        <a class="btn-chip" href="<?= BASE_URL ?>/admin/pasang-baru/detail.php?id=<?= (int) $i['id'] ?>"><i class="bi bi-eye"></i> Detail</a>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</section>
 
-            e.preventDefault();
-
-            swal({
-                title: 'Tandai telah selesai ?',
-                // text: 'You won\'t be able to revert this!',
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Konfirmasi'
-
-            }).then(function(isConfirmed) {
-                if (isConfirmed.value) {
-                    var id = $('.update').data('id');
-
-                    $.ajax({
-                        method: 'POST',
-                        url: '<?php echo BASE_URL . '/admin/pasang-baru/update-p-baru.php' ?>',
-                        data: {
-                            id: id
-                        },
-                        success: function(response) {
-                            swal('', 'Berhasil Update Data', 'success');
-                            setTimeout(function() {
-                                window.location.href =
-                                    '<?php echo BASE_URL . '/admin/pasang-baru.php' ?>'
-                            }, 3000)
-                        }
-                    })
-
-                }
-            })
-
-
-        })
-        $(document).on('click', '#hapus', function(e) {
-
-            e.preventDefault();
-            var id = $(this).data('id');
-            swal({
-                title: 'Hapus data ?',
-                text: 'You won\'t be able to revert this!',
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Konfirmasi'
-            }).then(function(isConfirmed) {
-                if (isConfirmed.value) {
-                    $.ajax({
-                        method: 'POST',
-                        url: '<?php echo BASE_URL . '/admin/pengaduan/hapus-keluhan.php' ?>',
-                        data: {
-                            id_p: id
-                        },
-                        success: function(response) {
-                            $(e.target).closest('tr').remove();
-                            swal({
-                                title: 'Berhasil Menghapus Data',
-                                timer: 3000,
-                                type: 'success',
-                                showConfirmButton: true,
-                            });
-
-                        }
-                    })
-                }
-            })
-
-        })
-    </script>
-
+<?php include ROOT_PATH . '/admin/inc/layoutEnd.php'; ?>
 </body>
 
 </html>

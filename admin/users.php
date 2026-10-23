@@ -1,172 +1,101 @@
 <?php
 include("../path.php");
-
 include(ROOT_PATH . "/app/controllers/users.php");
 include(ROOT_PATH . '/app/helpers/middleware.php');
 adminOnly();
-$all_user = selectAll('users');
+adminLevel([1]);
 
+$all_user = selectAll('users');
+$me = currentAdmin();
+$roleTone = [1 => 'tag-blue', 2 => 'tag-green', 3 => 'tag-violet'];
+$roleIcon = [1 => 'bi-shield-check', 2 => 'bi-headset', 3 => 'bi-archive'];
+$roleCount = array_count_values(array_map(function ($u) {
+    return (int) $u['level'];
+}, $all_user));
+
+include ROOT_PATH . '/admin/inc/layoutStart.php';
+
+adminPageHeader([
+    'desc' => 'Akun yang bisa masuk ke panel admin beserta hak aksesnya.',
+    'actions' => '<a href="' . BASE_URL . '/admin/users/add-user.php" class="btn btn-primary"><i class="bi bi-person-plus"></i> Tambah user</a>',
+]);
 ?>
 
-<!DOCTYPE html>
-<html>
+<section class="mini-stats">
+    <div class="mini-stat tone-blue"><span class="kpi-icon"><i class="bi bi-people"></i></span>
+        <div><b><?= count($all_user) ?></b><small>Total akun</small></div>
+    </div>
+    <div class="mini-stat tone-blue"><span class="kpi-icon"><i class="bi bi-shield-check"></i></span>
+        <div><b><?= $roleCount[1] ?? 0 ?></b><small>Administrator</small></div>
+    </div>
+    <div class="mini-stat tone-green"><span class="kpi-icon"><i class="bi bi-headset"></i></span>
+        <div><b><?= $roleCount[2] ?? 0 ?></b><small>Customer Service</small></div>
+    </div>
+    <div class="mini-stat tone-violet"><span class="kpi-icon"><i class="bi bi-archive"></i></span>
+        <div><b><?= $roleCount[3] ?? 0 ?></b><small>Arsip &amp; Publikasi</small></div>
+    </div>
+</section>
 
-<head>
-    <!-- Basic Page Info -->
-    <meta charset="utf-8" />
-    <title>
-        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Beranda | Muaratirta Kota Gorontalo'; ?>
-    </title>
-
-    <!-- Site favicon -->
-    <link href="../assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
-
-    <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
-    <?php include ROOT_PATH . '/admin/inc/styleAdmin.php'; ?>
-</head>
-
-<body>
-    <!-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div> -->
-
-    <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
-
-    <?php include ROOT_PATH . '/admin/inc/rightSidebar.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/leftSidebar.php' ?>
-
-
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="main-container">
-        <div class="xs-pd-20-10 pd-ltr-20">
-
-            <div class="card-box pb-10">
-                <div class="page-header mb-1">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12 align-items-center">
-                            <div class="title">
-                                <h4 style="padding: 20px 0;">Pengaturan Data User</h4>
-                            </div>
-
-
-                        </div>
-                        <div class="col-md-6 col-sm-12 align-items-center text-md-right">
-                            <div class="btn-tambah ml-auto">
-                                <a href="<?= BASE_URL . '/admin/users/add-user.php' ?>" class="btn btn-success"><i
-                                        class="fa fa-plus"></i> Tambah User</a>
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-                <table class="data-table table stripe hover nowrap">
-                    <thead>
-                        <tr>
-                            <th class="table-plus datatable-nosort">Nama</th>
-                            <!-- <th>Jabatan</th> -->
-                            <th>Username</th>
-                            <th>Level</th>
-                            <th>Status</th>
-                            <th class="datatable-nosort">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($all_user as $user) : ?>
-                        <tr>
-                            <td class="table-plus"><?= $user['nm_lengkap'] ?></td>
-                            <!-- <td>...</td> -->
-                            <td><?= $user['username'] ?></td>
-                            <td><?= $user['level'] == 1 ? 'Administrator' : ($user['level'] == 2 ? 'Customer Service' : ($user['level'] == 3 ? 'Arsip' : '')); ?>
-                            </td>
-                            <td> tidak aktif</td>
-                            <td>
-                                <div class="dropdown">
-                                    <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#"
-                                        role="button" data-toggle="dropdown">
-                                        <i class="dw dw-more"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-
-                                        <a class="dropdown-item hapus" data-id="<?= $user['id'] ?>" href="#"><i
-                                                class="dw dw-delete-3"></i>
-                                            Delete</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-
+<section class="list-panel cards-sm">
+    <div class="list-head">
+        <div>
+            <h2>Daftar Akun <span class="count"><?= count($all_user) ?></span></h2>
+            <p>Hak akses menentukan menu yang tampil untuk tiap akun.</p>
         </div>
     </div>
 
-    <?php include ROOT_PATH . '/admin/inc/scriptAdmin.php' ?>
+    <table class="data-table table-cards table hover" id="tbl-users" data-search="Cari nama, username, email…">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Username</th>
+                <th>Hak Akses</th>
+                <th>No. HP</th>
+                <th class="datatable-nosort text-right">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($all_user as $user) :
+                $lvl = (int) $user['level'];
+                $isMe = $me && (int) $me['id'] === (int) $user['id'];
+            ?>
+            <tr>
+                <td class="c-primary">
+                    <div class="cell-user">
+                        <span class="avatar"><img src="<?= h(adminAvatarUrl($user)) ?>" alt="" loading="lazy"></span>
+                        <div style="min-width:0">
+                            <span class="cell-title"><?= h($user['nm_lengkap'] ?: $user['username']) ?>
+                                <?php if ($isMe) : ?><span class="tag tag-green" style="margin-left:4px">Anda</span><?php endif; ?></span>
+                            <span class="cell-sub"><?= h($user['email'] ?: '-') ?></span>
+                        </div>
+                    </div>
+                </td>
+                <td data-label="Username"><span class="mono">@<?= h($user['username']) ?></span></td>
+                <td class="c-status" data-search="<?= h(adminRoleName($lvl)) ?>">
+                    <span class="tag <?= $roleTone[$lvl] ?? '' ?>"><i class="bi <?= $roleIcon[$lvl] ?? 'bi-person' ?>"></i> <?= h(adminRoleName($lvl)) ?></span>
+                </td>
+                <td data-label="No. HP"><?= h($user['no_hp'] ?: '-') ?></td>
+                <td class="c-actions">
+                    <div class="row-actions">
+                        <?php if ($isMe) : ?>
+                        <a class="btn-chip" href="<?= BASE_URL ?>/admin/profile.php"><i class="bi bi-person-circle"></i> Profil saya</a>
+                        <?php else : ?>
+                        <button type="button" class="btn-chip"
+                            data-action="<?= BASE_URL ?>/admin/users/delete-user-handler.php" data-method="GET" data-param-id="<?= (int) $user['id'] ?>"
+                            data-confirm="Hapus akun <?= h($user['username']) ?>?" data-confirm-text="Akun ini tidak akan bisa login lagi ke panel admin."
+                            data-tone="danger" data-remove="tr" data-success="Akun berhasil dihapus.">
+                            <i class="bi bi-trash3"></i> Hapus
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</section>
 
-    <script>
-    $(document).on('click', '.hapus', function(e) {
-        e.preventDefault();
-        var id = $(this).data('id');
-        var url = '<?php echo BASE_URL . '/admin/users/delete-user-handler.php?id=' ?>';
-        var delete_url = url + id;
-        console.log(delete_url);
-        console.log(id);
-
-        // Show SweetAlert2 confirmation dialog
-        swal({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then(function(isConfirmed) {
-            if (isConfirmed.value) {
-                // User clicked the confirm button
-                $.ajax({
-                    url: delete_url,
-                    type: 'GET',
-                    success: function(response) {
-                        // Handle success (e.g., remove the deleted item from the UI)
-                        $(e.target).closest('tr').remove();
-
-                        swal({
-                            title: 'Berhasil hapus Data',
-                            // timer: 3000,
-                            type: 'success',
-                            showConfirmButton: true,
-                        });
-
-
-
-                    },
-                    error: function(error) {
-                        // Handle error
-                        swal('Error!', 'There was an error while deleting.',
-                            'error');
-                    }
-                });
-            }
-        });
-
-    });
-    </script>
+<?php include ROOT_PATH . '/admin/inc/layoutEnd.php'; ?>
 </body>
 
 </html>

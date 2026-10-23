@@ -1,247 +1,124 @@
-<?php include("../path.php"); ?>
 <?php
-
+include("../path.php");
 include(ROOT_PATH . "/app/controllers/struktur-organisasi.php");
 include(ROOT_PATH . '/app/helpers/middleware.php');
 adminOnly();
+adminLevel([1]);
 
 $bagian = selectAll('jabatan');
 
-function getStaff()
-{
-    global $conn;
-    $sql = 'SELECT s.*,j.bagian FROM staff as s INNER JOIN jabatan as j ON s.kd_bagian=j.kd_bagian';
+$stmt = $conn->prepare('SELECT s.*, j.bagian FROM staff AS s INNER JOIN jabatan AS j ON s.kd_bagian = j.kd_bagian ORDER BY j.bagian, s.nm_lengkap');
+prepStmtForFetch($stmt);
+$stmt->execute();
+$staffList = stmtFetchAllAssoc($stmt);
 
-    $stmt = $conn->prepare($sql);
-    prepStmtForFetch($stmt);
-    $stmt->execute();
-    $records = stmtFetchAllAssoc($stmt);
-    return $records;
-}
+$staffPerBagian = array_count_values(array_column($staffList, 'kd_bagian'));
 
+include ROOT_PATH . '/admin/inc/layoutStart.php';
+
+adminPageHeader([
+    'desc' => 'Bagian dan staff yang tampil di halaman Struktur Organisasi website.',
+    'actions' => '<a href="' . BASE_URL . '/admin/struktur-organisasi/add-bagian.php" class="btn btn-ghost"><i class="bi bi-diagram-3"></i> Tambah bagian</a>'
+        . '<a href="' . BASE_URL . '/admin/struktur-organisasi/add-staff.php" class="btn btn-primary"><i class="bi bi-person-plus"></i> Tambah staff</a>',
+]);
 ?>
 
-<!DOCTYPE html>
-<html>
-
-<head>
-    <!-- Basic Page Info -->
-    <meta charset="utf-8" />
-    <title>
-        Pengaturan informasi | Admin Muaratirta
-    </title>
-
-    <!-- Site favicon -->
-    <link href="../assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
-
-    <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
-    <?php include ROOT_PATH . '/admin/inc/styleAdmin.php'; ?>
-</head>
-
-<body>
-    <!-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div> -->
-
-    <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
-
-    <?php include ROOT_PATH . '/admin/inc/rightSidebar.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/leftSidebar.php' ?>
-
-
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="main-container">
-        <div class="xs-pd-20-10 pd-ltr-20">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="title">
-                            <h4>Struktur Organisasi</h4>
-                        </div>
-                        <nav aria-label="breadcrumb" role="navigation">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="<?php echo BASE_URL . '/admin/?page-title=Dashboard-Admin' ?>">Beranda</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Struktur Organisasi
-                                </li>
-                            </ol>
-                        </nav>
-                    </div>
-
+<div class="row">
+    <div class="col-xl-4">
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>Bagian</h3>
+                    <p><?= count($bagian) ?> bagian · <?= count($staffList) ?> staff</p>
                 </div>
+                <a class="panel-link" href="<?= BASE_URL ?>/admin/struktur-organisasi/add-bagian.php"><i class="bi bi-plus-lg"></i> Tambah</a>
             </div>
-            <div class="card-box pb-10">
-                <div class="page-header mb-1 pb-0">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12 align-items-center">
-                            <div class="title">
-                                <h4 style="padding: 20px 0;">Pengaturan Struktur Organisasi</h4>
-                            </div>
-
-
+            <div class="panel-body p-0">
+                <?php if (!$bagian) : ?>
+                <div class="empty-state"><i class="bi bi-diagram-3"></i>Belum ada bagian.</div>
+                <?php endif; ?>
+                <ul class="feed">
+                    <?php foreach ($bagian as $bgn) : $n = $staffPerBagian[$bgn['kd_bagian']] ?? 0; ?>
+                    <li>
+                        <div class="feed-row">
+                            <span class="avatar <?= adminAvatarTone($bgn['bagian']) ?>"><?= h(adminInitials($bgn['bagian'])) ?></span>
+                            <span class="feed-main">
+                                <span class="feed-title"><?= h($bgn['bagian']) ?></span>
+                                <span class="feed-sub"><span class="mono"><?= h($bgn['kd_bagian']) ?></span> · <?= $n ?> staff</span>
+                            </span>
+                            <span class="row-actions">
+                                <a class="btn-icon" href="<?= BASE_URL ?>/admin/struktur-organisasi/edit-bagian.php?id=<?= urlencode($bgn['kd_bagian']) ?>" title="Edit bagian"><i class="bi bi-pencil-square"></i></a>
+                                <button type="button" class="btn-icon danger" title="Hapus bagian"
+                                    data-action="<?= BASE_URL ?>/admin/struktur-organisasi/delete-bagian.php" data-param-id="<?= (int) $bgn['id'] ?>"
+                                    data-confirm="Hapus bagian <?= h($bgn['bagian']) ?>?"
+                                    data-confirm-text="<?= $n ? $n . ' staff di bagian ini tidak akan tampil di website sampai dipindah ke bagian lain.' : 'Bagian ini belum punya staff.' ?>"
+                                    data-tone="danger" data-remove="li" data-success="Bagian berhasil dihapus.">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </span>
                         </div>
-
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-
-                        <a href="<?= BASE_URL . '/admin/struktur-organisasi/add-bagian.php' ?>"
-                            class="btn btn-success btn-sm ml-2 mb-2"><i class="bi bi-plus"></i> Tambah</a>
-                        <table class="table nowrap" id="table">
-                            <thead>
-                                <th>Kode Bagian</th>
-                                <th>Bagian</th>
-                                <th>Aksi</th>
-                            </thead>
-
-                            <tbody>
-                                <?php foreach ($bagian as $bgn) : ?>
-                                <tr>
-                                    <td><?= $bgn['kd_bagian'] ?></td>
-                                    <td><?= $bgn['bagian'] ?></td>
-                                    <td>
-                                        <div class="table-actions">
-                                            <a href="<?= BASE_URL . '/admin/struktur-organisasi/edit-bagian.php?id=' . $bgn['kd_bagian'] ?>"
-                                                data-color="#265ed7"><i class="icon-copy dw dw-edit2"></i></a>
-                                            <a id="hapus" class="hapus" data-id="<?= $bgn['id'] ?>"
-                                                data-color=" #e95959"><i class="icon-copy dw dw-delete-3"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="col-lg-8 col-md-6">
-
-                        <div class="btn-tambah ml-auto mb-2">
-                            <a href="<?= BASE_URL . '/admin/struktur-organisasi/add-staff.php' ?>"
-                                class="btn btn-success btn-sm ml-2"><i class="bi bi-plus"></i> Tambah</a>
-                        </div>
-                        <div class="table table-responsive">
-                            <table class="data-table table nowrap" id="table">
-                                <thead>
-                                    <th>Nama Lengkap</th>
-                                    <th>Bagian</th>
-                                    <th>Jabatan</th>
-                                    <th>Aksi</th>
-                                </thead>
-
-                                <tbody>
-                                    <?php foreach (getStaff() as $staff) : ?>
-                                    <tr>
-                                        <td><?= $staff['nm_lengkap'] ?></td>
-                                        <td><?= $staff['bagian'] ?></td>
-                                        <td><?= $staff['jabatan'] ?></td>
-                                        <td>
-                                            <div class="table-actions">
-                                                <a href="<?= BASE_URL . '/admin/struktur-organisasi/edit-staff.php?id=' . $staff['id'] ?>"
-                                                    data-color="#265ed7"><i class="icon-copy dw dw-edit2"></i></a>
-                                                <a href="#" data-id="<?= $staff['id'] ?>" class="hapus-staff"
-                                                    data-color=" #e95959"><i class="icon-copy dw dw-delete-3"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                    </div>
-                </div>
-
-
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
-
-
-
-        </div>
+        </section>
     </div>
 
-    <?php include ROOT_PATH . '/admin/inc/scriptAdmin.php' ?>
-    <script>
-    $('.hapus').on('click', function(e) {
-        var id = $(this).data('id');
-        swal({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then(function(isConfirmed) {
-            if (isConfirmed.value) {
-                $.ajax({
-                    method: 'POST',
-                    url: '<?= BASE_URL . '/admin/struktur-organisasi/delete-bagian.php' ?>',
-                    data: {
-                        id: id
-                    },
-                    success: function(response) {
-                        $(e.target).closest('tr').remove();
+    <div class="col-xl-8">
+        <section class="list-panel cards-sm">
+            <div class="list-head">
+                <div>
+                    <h2>Staff <span class="count"><?= count($staffList) ?></span></h2>
+                    <p>Diurutkan berdasarkan bagian.</p>
+                </div>
+            </div>
+            <table class="data-table table-cards table hover" id="tbl-staff" data-search="Cari nama, bagian, jabatan…"
+                data-empty="Belum ada staff.">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Bagian</th>
+                        <th>Jabatan</th>
+                        <th class="datatable-nosort text-right">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($staffList as $staff) : ?>
+                    <tr>
+                        <td class="c-primary">
+                            <div class="cell-user">
+                                <span class="avatar <?= adminAvatarTone($staff['nm_lengkap']) ?>">
+                                    <?php if (!empty($staff['profile_pict'])) : ?>
+                                    <img src="<?= h(resolveImageUrl($staff['profile_pict'], 'staff', ['assets/staff'])) ?>" alt="" loading="lazy">
+                                    <?php else : ?>
+                                    <?= h(adminInitials($staff['nm_lengkap'])) ?>
+                                    <?php endif; ?>
+                                </span>
+                                <span class="cell-title"><?= h($staff['nm_lengkap']) ?></span>
+                            </div>
+                        </td>
+                        <td data-label="Bagian"><span class="tag"><?= h($staff['bagian']) ?></span></td>
+                        <td data-label="Jabatan"><?= h($staff['jabatan']) ?></td>
+                        <td class="c-actions">
+                            <div class="row-actions">
+                                <button type="button" class="btn-icon danger" title="Hapus staff"
+                                    data-action="<?= BASE_URL ?>/admin/struktur-organisasi/delete-staff-handler.php" data-param-id="<?= (int) $staff['id'] ?>"
+                                    data-confirm="Hapus <?= h($staff['nm_lengkap']) ?>?" data-confirm-text="Staff dan fotonya akan dihapus dari struktur organisasi."
+                                    data-tone="danger" data-remove="tr" data-success="Staff berhasil dihapus.">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                                <a class="btn-chip" href="<?= BASE_URL ?>/admin/struktur-organisasi/edit-staff.php?id=<?= (int) $staff['id'] ?>"><i class="bi bi-pencil-square"></i> Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>
 
-                        console.log(response);
-                        toastr.success('Berhasil Hapus Data');
-
-                    }
-                })
-            }
-        })
-    });
-    </script>
-    <script>
-    $('.hapus-staff').on('click', function(e) {
-
-        // e.preventDefault();
-        var id = $(this).data('id');
-        // alert(123);
-        swal({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then(function(isConfirmed) {
-            if (isConfirmed.value) {
-                $.ajax({
-                    method: 'POST',
-                    url: '<?= BASE_URL . '/admin/struktur-organisasi/delete-staff-handler.php' ?>',
-                    data: {
-                        id: id
-                    },
-                    success: function(response) {
-                        $(e.target).closest('tr').remove();
-
-                        console.log(response);
-                        toastr.success('Berhasil Hapus Data');
-
-                    }
-                })
-            }
-        })
-    });
-    </script>
+<?php include ROOT_PATH . '/admin/inc/layoutEnd.php'; ?>
 </body>
 
 </html>

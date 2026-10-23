@@ -1,6 +1,9 @@
 <?php
 include('../../path.php');
-include(ROOT_PATH . '/app/db/db.php');
+require_once(ROOT_PATH . '/app/helpers/middleware.php');
+adminOnly();
+adminLevel([1, 2]);
+require_once(ROOT_PATH . '/app/db/db.php');
 require ROOT_PATH . '/vendor/autoload.php';
 require_once ROOT_PATH . '/app/helpers/r2_helper.php';
 

@@ -22,6 +22,10 @@ $konten = '';
    ============================================ */
 
 if (isset($_POST['add-faq'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 2]);
     $errors = validateFAQ($_POST);
 
     if (count($errors) === 0) {
@@ -46,6 +50,10 @@ if (isset($_GET['id'])) {
 }
 
 if (isset($_POST['update-faq'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 2]);
     $errors = validateFAQ($_POST);
 
     if (count($errors) === 0) {
@@ -64,6 +72,10 @@ if (isset($_POST['update-faq'])) {
 }
 
 if (isset($_GET['del_faq'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 2]);
     $count = deleteF($table_faq, $_GET['del_faq']);
     $_SESSION['message'] = "FAQ berhasil dihapus";
     $_SESSION['type'] = "success";
@@ -76,6 +88,10 @@ if (isset($_GET['del_faq'])) {
    ============================================ */
 
 if (isset($_POST['add-chat-info'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 2]);
     if (empty($_POST['judul'])) array_push($errors, "Judul harus diisi");
     if (empty($_POST['konten'])) array_push($errors, "Konten harus diisi");
 
@@ -100,6 +116,10 @@ if (isset($_GET['info_id'])) {
 }
 
 if (isset($_POST['update-chat-info'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 2]);
     if (empty($_POST['judul'])) array_push($errors, "Judul harus diisi");
     if (empty($_POST['konten'])) array_push($errors, "Konten harus diisi");
 
@@ -109,7 +129,7 @@ if (isset($_POST['update-chat-info'])) {
         $count = update($table_info, $id, $_POST);
         $_SESSION['message'] = "Info Chat berhasil diupdate";
         $_SESSION['type'] = "success";
-        header("location: " . BASE_URL . "/admin/chatbot/info.php?id=" . $id);
+        header("location: " . BASE_URL . "/admin/chatbot/info.php?info_id=" . $id);
         exit();
     } else {
         $id = $_POST['id'];
@@ -119,6 +139,10 @@ if (isset($_POST['update-chat-info'])) {
 }
 
 if (isset($_GET['del_info'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 2]);
     $count = deleteF($table_info, $_GET['del_info']);
     $_SESSION['message'] = "Info Chat berhasil dihapus";
     $_SESSION['type'] = "success";

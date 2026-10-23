@@ -2,6 +2,7 @@
 
 include(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
+require_once(ROOT_PATH . '/app/helpers/html_sanitizer.php');
 
 
 $id = '';
@@ -79,6 +80,10 @@ function resizeImage($source, $destination, $width, $height)
 
 
 if (isset($_POST['add-info'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 3]);
 
     if (!empty($_FILES['image']['name'])) {
         $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
@@ -95,7 +100,8 @@ if (isset($_POST['add-info'])) {
 
     $slug = slugify($judul);
     $tag = $_POST['tag'];
-    $deskripsi = $_POST['deskripsi'];
+    // Isi dicetak mentah di halaman publik -> bersihkan dulu dari tag/atribut berbahaya
+    $deskripsi = sanitizeArticleHtml($_POST['deskripsi'] ?? '');
     $author = getUser()['nm_lengkap'];
     $img = $_POST['image'] ?? '';
 
@@ -120,6 +126,10 @@ if (isset($_POST['add-info'])) {
 }
 
 if (isset($_POST['update-info'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 3]);
     $id = $_GET['id'];
 
     if (!empty($_FILES['image']['name'])) {
@@ -151,7 +161,8 @@ if (isset($_POST['update-info'])) {
     $judul = $_POST['judul'];
     $slug = slugify($judul);
     $tag = $_POST['tag'];
-    $deskripsi = $_POST['deskripsi'];
+    // Isi dicetak mentah di halaman publik -> bersihkan dulu dari tag/atribut berbahaya
+    $deskripsi = sanitizeArticleHtml($_POST['deskripsi'] ?? '');
     $author = getUser()['nm_lengkap'];
     $img = $_POST['image'] ?? '';
 
@@ -177,6 +188,10 @@ if (isset($_POST['update-info'])) {
 }
 
 if (isset($_GET['hapus'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1, 3]);
 
     $info_id = selectOne('informasi', ['id' => $_GET['hapus']]);
     if (!empty($info_id['image'])) {

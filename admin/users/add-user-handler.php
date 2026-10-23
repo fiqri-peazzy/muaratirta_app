@@ -1,5 +1,7 @@
 <?php
 require_once('../../path.php');
+require_once(ROOT_PATH . '/app/helpers/middleware.php');
+adminAjaxOnly([1]);
 require_once(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/clean_data.php');
 require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
@@ -46,6 +48,10 @@ function validateFormAddUser($data)
         $errors['confirm_password'] = 'Password Tidak Cocok';
     }
 
+    if (!in_array((string) ($data['level'] ?? ''), ['1', '2', '3'], true)) {
+        $errors['level'] = 'Pilih hak akses untuk akun ini';
+    }
+
 
     return $errors;
 }
@@ -55,12 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // echo json_encode($errors);
     if (!empty($_FILES['profile_pict']['name'])) {
         $allowed_extensions = array('jpg', 'jpeg', 'png');
-
         $file_extension = strtolower(pathinfo($_FILES['profile_pict']['name'], PATHINFO_EXTENSION));
-
         if (!in_array($file_extension, $allowed_extensions)) {
             $errors['profile_pict'] = 'Upload file image (.jpg, .png)';
-        } else {
+        } elseif (count($errors) === 0) {
+            // Unggah hanya kalau data lain sudah valid, supaya tidak ada file yatim di R2
             $image = "UIMG_" . time() . '_' . uniqid() . '.' . $file_extension;
             if (uploadImageToR2($_FILES['profile_pict']['tmp_name'], 'profile', $image)) {
                 $_POST['profile_pict'] = $image;

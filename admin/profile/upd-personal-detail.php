@@ -1,6 +1,8 @@
 <?php
 
 require_once('../../path.php');
+require_once(ROOT_PATH . '/app/helpers/middleware.php');
+adminAjaxOnly();
 require_once(ROOT_PATH . '/app/db/db.php');
 
 function validateForm($data)
@@ -51,9 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (count($error) == 0) {
         $update = update('users', getUser()['id'], ['nm_lengkap' => $_POST['nm_lengkap'], 'username' => $_POST['username'], 'email' => $_POST['email'], 'no_hp' => $_POST['no_hp']]);
 
-        if ($update) {
+        // affected_rows 0 = tidak ada perubahan (tetap sukses). Jangan kirim hash password ke browser.
+        if ($update >= 0) {
             $user_info = selectOne('users', ['id' => getUser()['id']]);
-            echo json_encode(['status' => 1, 'msg' => 'Success, Profile Anda Berhasil di update', 'user_info' => $user_info]);
+            unset($user_info['password']);
+            echo json_encode(['status' => 1, 'msg' => 'Profil berhasil diperbarui.', 'user_info' => $user_info]);
         } else {
             echo json_encode(['status' => 0, 'msg' => 'Something Went Wrong']);
         }

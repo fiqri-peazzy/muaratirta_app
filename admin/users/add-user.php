@@ -3,216 +3,123 @@ include('../../path.php');
 include(ROOT_PATH . '/app/controllers/users.php');
 include(ROOT_PATH . '/app/helpers/middleware.php');
 adminOnly();
+adminLevel([1]);
+
+include ROOT_PATH . '/admin/inc/layoutStart.php';
+
+adminPageHeader([
+    'desc' => 'Buat akun baru untuk staff yang perlu mengakses panel admin.',
+    'back' => BASE_URL . '/admin/users.php',
+]);
 ?>
 
-<!DOCTYPE html>
-<html>
-
-<head>
-    <!-- Basic Page Info -->
-    <meta charset="utf-8" />
-    <title>
-        <?php echo isset($_GET['page-title']) && $_GET['page-title'] !== '' ? htmlspecialchars($_GET['page-title']) : 'Beranda | Muaratirta Kota Gorontalo'; ?>
-    </title>
-
-    <!-- Site favicon -->
-    <link href="../../assets/logo/Logo-PDAM-MT-min.ico" rel="icon">
-
-    <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="../vendors/styles/core.css" />
-    <link rel="stylesheet" type="text/css" href="../vendors/styles/icon-font.min.css" />
-    <link rel="stylesheet" type="text/css" href="../src/plugins/datatables/css/dataTables.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="../src/plugins/datatables/css/responsive.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="../vendors/styles/style.css" />
-    <link rel="stylesheet" href="../src/plugins/sweetalert2/sweetalert2.css">
-    <link rel="stylesheet" href="../src/plugins/toastr/toastr.min.css">
-</head>
-
-<body>
-    <!-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="../vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div> -->
-
-    <?php include ROOT_PATH . '/admin/inc/headerAdmin.php' ?>
-
-    <?php include ROOT_PATH . '/admin/inc/rightSidebar.php' ?>
-    <?php include ROOT_PATH . '/admin/inc/leftSidebar.php' ?>
-
-
-
-    <div class="mobile-menu-overlay"></div>
-
-    <div class="main-container">
-        <div class="xs-pd-20-10 pd-ltr-20">
-            <div class="page-header">
-                <div class="row">
-                    <div class="col-md-6 col-sm-12">
-                        <div class="title">
-                            <h4>Tambah User</h4>
-                        </div>
-                        <nav aria-label="breadcrumb" role="navigation">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="<?php echo BASE_URL . '/admin/' ?>">Beranda</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Tambah User
-                                </li>
-                            </ol>
-                        </nav>
-                    </div>
-
+<form action="<?= BASE_URL ?>/admin/users/add-user-handler.php" method="post" enctype="multipart/form-data"
+    data-ajax-form data-reset data-warn-unsaved autocomplete="off">
+    <div class="form-layout">
+        <div>
+            <section class="form-card">
+                <div class="form-card-head">
+                    <h2><i class="bi bi-person-badge"></i> Data diri</h2>
+                    <p>Nama dan kontak yang terlihat oleh admin lain.</p>
                 </div>
-            </div>
-            <div class="card-box pd-20">
-                <form action="<?php echo BASE_URL . '/admin/users/add-user-handler.php' ?>" enctype="multipart/form-data" method="post" id="add-user-form">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Nama Lengkap</label>
-                                <input type="text" placeholder="Nama Lengkap" name="nm_lengkap" id="" class="form-control">
-                                <span class="text-danger error-text nm_lengkap_error"></span>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Username</label>
-                                <input type="text" placeholder="Username" name="username" id="" class="form-control">
-                                <span class="text-danger error-text username_error"></span>
-                            </div>
-                        </div>
-
-
+                <div class="form-card-body form-grid">
+                    <div class="field span-2">
+                        <label for="nm_lengkap">Nama lengkap <span class="req">*</span></label>
+                        <div class="input-icon"><i class="bi bi-person"></i>
+                            <input type="text" id="nm_lengkap" name="nm_lengkap" class="form-control" placeholder="Nama sesuai identitas" required></div>
+                        <span class="error-text nm_lengkap_error"></span>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Email</label>
-                                <input type="email" placeholder="Email" name="email" id="" class="form-control">
-                                <span class="text-danger error-text email_error"></span>
-                            </div>
-                        </div>
+                    <div class="field">
+                        <label for="email">Email <span class="req">*</span></label>
+                        <div class="input-icon"><i class="bi bi-envelope"></i>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="nama@muaratirta.co.id" required></div>
+                        <span class="error-text email_error"></span>
+                    </div>
+                    <div class="field">
+                        <label for="no_hp">No. HP <span class="opt">(opsional)</span></label>
+                        <div class="input-icon"><i class="bi bi-telephone"></i>
+                            <input type="tel" id="no_hp" name="no_hp" class="form-control" placeholder="08xxxxxxxxxx" inputmode="numeric"></div>
+                        <span class="error-text no_hp_error"></span>
+                    </div>
+                </div>
+            </section>
 
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">No Hp</label>
-                                <input type="text" placeholder="No Hp" name="no_hp" id="" class="form-control">
-                                <span class="text-danger error-text no_hp_error"></span>
-                            </div>
-                        </div>
+            <section class="form-card">
+                <div class="form-card-head">
+                    <h2><i class="bi bi-key"></i> Akses login</h2>
+                    <p>Username minimal 6 karakter. Bagikan password secara langsung, jangan lewat grup chat.</p>
+                </div>
+                <div class="form-card-body form-grid">
+                    <div class="field span-2">
+                        <label for="username">Username <span class="req">*</span></label>
+                        <div class="input-icon"><i class="bi bi-at"></i>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="mis. cs_kotaselatan" minlength="6" required autocomplete="off"></div>
+                        <span class="error-text username_error"></span>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Profile Image</label>
-                                <input type="file" name="profile_pict" id="" class="form-control">
-                                <span class="text-danger error-text profile_pict_error"></span>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label for="" class="form-label">Level User</label>
-                                <select name="level" id="" class="form-control">
-                                    <option value="" selected>--Pilih</option>
-                                    <option value="1" class="form-control">Administrator</option>
-                                    <option value="2" class="form-control">CS</option>
-                                    <option value="3" class="form-control">Arsip</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div class="field">
+                        <label for="password">Password <span class="req">*</span></label>
+                        <div class="input-icon"><i class="bi bi-lock"></i>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Minimal 6 karakter" required autocomplete="new-password" data-strength="#pw-meter">
+                            <button type="button" class="ii-toggle" data-password-toggle aria-label="Tampilkan password"><i class="bi bi-eye"></i></button></div>
+                        <div class="strength" id="pw-meter" data-level="0"><span></span><span></span><span></span><span></span></div>
+                        <span class="error-text password_error"></span>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Password</label>
-                                <input type="password" placeholder="password" name="password" id="" class="form-control">
-                                <span class="text-danger error-text password_error"></span>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6">
-                            <div class="form-group">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" placeholder="confirm password" name="confirm_password" id="" class="form-control">
-                                <span class="text-danger error-text confirm_password_error"></span>
-                            </div>
-                        </div>
+                    <div class="field">
+                        <label for="confirm_password">Ulangi password <span class="req">*</span></label>
+                        <div class="input-icon"><i class="bi bi-lock"></i>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Ketik ulang password" required autocomplete="new-password">
+                            <button type="button" class="ii-toggle" data-password-toggle aria-label="Tampilkan password"><i class="bi bi-eye"></i></button></div>
+                        <span class="error-text confirm_password_error"></span>
                     </div>
-                    <div class="row">
-                        <div class="form-group pl-3">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-
+                </div>
+            </section>
         </div>
 
-
+        <aside class="side-card">
+            <section class="form-card">
+                <div class="form-card-head">
+                    <h2><i class="bi bi-shield-check"></i> Hak akses <span class="req">*</span></h2>
+                    <p>Menentukan menu yang bisa dibuka.</p>
+                </div>
+                <div class="form-card-body">
+                    <div class="choice-grid" style="grid-template-columns:1fr">
+                        <label class="choice"><input type="radio" name="level" value="2" required>
+                            <span><b><i class="bi bi-headset"></i> Customer Service</b><small>Pengaduan, pasang baru, chatbot</small></span></label>
+                        <label class="choice"><input type="radio" name="level" value="3">
+                            <span><b><i class="bi bi-archive"></i> Arsip &amp; Publikasi</b><small>Informasi/berita dan galeri</small></span></label>
+                        <label class="choice"><input type="radio" name="level" value="1">
+                            <span><b><i class="bi bi-shield-check"></i> Administrator</b><small>Semua menu, termasuk kelola user</small></span></label>
+                    </div>
+                    <span class="error-text level_error mt-2"></span>
+                </div>
+            </section>
+            <section class="form-card">
+                <div class="form-card-head">
+                    <h2><i class="bi bi-camera"></i> Foto profil <span class="opt">(opsional)</span></h2>
+                </div>
+                <div class="form-card-body">
+                    <label class="upload round" data-upload data-max-mb="2">
+                        <input type="file" name="profile_pict" accept="image/png,image/jpeg">
+                        <div class="upload-empty"><span class="ue-icon"><i class="bi bi-camera"></i></span><b>Pilih foto</b></div>
+                        <div class="upload-preview"><img alt=""></div>
+                        <div class="upload-bar"><span class="ub-name"></span></div>
+                    </label>
+                    <span class="error-text profile_pict_error mt-2"></span>
+                </div>
+            </section>
+        </aside>
     </div>
 
-    <script src="../vendors/scripts/core.js"></script>
-    <script src="../vendors/scripts/script.min.js"></script>
-    <script src="../vendors/scripts/process.js"></script>
-    <script src="../vendors/scripts/layout-settings.js"></script>
-    <script src="../src/plugins/apexcharts/apexcharts.min.js"></script>
-    <script src="../src/plugins/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="../src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../src/plugins/datatables/js/dataTables.responsive.min.js"></script>
-    <script src="../src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
-    <script src="../vendors/scripts/dashboard3.js"></script>
-    <script src="../src/plugins/sweetalert2/sweetalert2.all.js"></script>
-    <script src="../src/plugins/toastr/toastr.min.js"></script>
-    <script>
-        $('#add-user-form').on('submit', function(e) {
-            e.preventDefault();
+    <div class="form-actions">
+        <span class="fa-note"><i class="bi bi-info-circle"></i> Kolom bertanda <span class="text-danger">*</span> wajib diisi.</span>
+        <div class="fa-btns">
+            <a href="<?= BASE_URL ?>/admin/users.php" class="btn btn-ghost">Kembali</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-person-plus"></i> Buat akun</button>
+        </div>
+    </div>
+</form>
 
-            var form = this;
-            var formData = new FormData(form);
-            $.ajax({
-                url: $(form).attr('action'),
-                method: $(form).attr('method'),
-                data: formData,
-                dataType: 'json',
-                contentType: false,
-                processData: false,
-                cache: false,
-                beforeSend: function() {
-                    toastr.remove();
-                    $(form).find('span.error-text').text('');
-                },
-                success: function(response) {
-                    if ($.isEmptyObject(response.error)) {
-                        if (response.status == 1) {
-                            $(form)[0].reset();
-                            toastr.success(response.msg);
-                        } else {
-                            toastr.error(response.msg);
-                        }
-                    } else {
-                        $.each(response.error, function(profix, val) {
-                            $(form).find('span.' + profix + '_error').text(val);
-
-                        });
-                    }
-                }
-            })
-
-        })
-    </script>
-
+<?php include ROOT_PATH . '/admin/inc/layoutEnd.php'; ?>
 </body>
 
 </html>

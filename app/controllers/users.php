@@ -35,26 +35,41 @@ if (mysqli_num_rows($result) == 0) {
 
 if (isset($_POST['loginAdmin'])) {
     $errors = [];
-    $u_name = $_POST['u_name'];
-    $pass = $_POST['pass'];
+    $u_name = trim((string) ($_POST['u_name'] ?? ''));
+    $pass = (string) ($_POST['pass'] ?? '');
 
-    $cek = "select * from users where username='$u_name'";
-    $res = mysqli_query($conn, $cek);
-    if (mysqli_num_rows($res) > 0) {
-        $row = mysqli_fetch_assoc($res);
+    // Rem percobaan login beruntun: 5x gagal -> tunggu 60 detik (per sesi browser)
+    $lockLeft = ($_SESSION['login_lock_until'] ?? 0) - time();
+    if ($lockLeft > 0) {
+        $errors['login'] = 'Terlalu banyak percobaan. Coba lagi dalam ' . $lockLeft . ' detik.';
+    } elseif ($u_name === '' || $pass === '') {
+        $errors['login'] = 'Username dan password wajib diisi.';
+    } else {
+        // Prepared statement (sebelumnya username disisipkan langsung ke SQL -> rawan SQL injection)
+        $row = stmtFetchAssoc(executeQuery("SELECT * FROM users WHERE username = ? LIMIT 1", ['username' => $u_name]));
 
-        $hash_password = $row['password'];
-        if (password_verify($pass, $hash_password)) {
+        if ($row && password_verify($pass, $row['password'])) {
+            session_regenerate_id(true);
+            unset($_SESSION['login_fail'], $_SESSION['login_lock_until']);
             $_SESSION['id'] = $row['id'];
             $_SESSION['username'] = $row['username'];
             $_SESSION['last_login_timestamp'] = time();
+            $_SESSION['last_regeneration'] = time();
+            $_SESSION['message'] = 'Selamat datang kembali, ' . ($row['nm_lengkap'] ?: $row['username']) . '!';
+            $_SESSION['type'] = 'success';
             header('Location:admin/index.php');
             exit();
-        } else {
-            $errors['password'] = 'Password Salah Coba Lagi';
         }
-    } else {
-        $errors['username'] = 'Username Tidak Ditemukan';
+
+        // Pesan sama untuk username/password salah supaya username terdaftar tidak bisa ditebak
+        $_SESSION['login_fail'] = ($_SESSION['login_fail'] ?? 0) + 1;
+        if ($_SESSION['login_fail'] >= 5) {
+            $_SESSION['login_lock_until'] = time() + 60;
+            $_SESSION['login_fail'] = 0;
+            $errors['login'] = 'Terlalu banyak percobaan gagal. Coba lagi dalam 60 detik.';
+        } else {
+            $errors['login'] = 'Username atau password salah. Sisa percobaan: ' . (5 - $_SESSION['login_fail']) . '.';
+        }
     }
 }
 

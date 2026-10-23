@@ -1,6 +1,8 @@
 <?php
 
 include('../../path.php');
+require_once(ROOT_PATH . '/app/helpers/middleware.php');
+adminAjaxOnly([1]);
 require_once(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
@@ -59,9 +61,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (count($errors) === 0) {
-        $update = update('staff', $id, ['nm_lengkap' => $_POST['nm_lengkap'], 'profile_pict' => $_POST['profile_pict']]);
-        if ($update) {
-            echo json_encode(['status' => 1, 'msg' => 'Sukses, Berhasil Update Staff']);
+        // Sebelumnya bagian & jabatan tidak ikut tersimpan. affected_rows = 0 berarti tidak ada
+        // perubahan (bukan gagal); -1 berarti error.
+        $update = update('staff', $id, [
+            'nm_lengkap' => $_POST['nm_lengkap'],
+            'kd_bagian' => $_POST['kd_bagian'],
+            'jabatan' => $_POST['jabatan'],
+            'profile_pict' => $_POST['profile_pict'] ?? null,
+        ]);
+        if ($update >= 0) {
+            echo json_encode(['status' => 1, 'msg' => 'Data staff berhasil diperbarui.']);
         } else {
             echo json_encode(['status' => 0, 'msg' => 'Somethin Went Wrong']);
         }

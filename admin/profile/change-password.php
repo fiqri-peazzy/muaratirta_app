@@ -1,6 +1,8 @@
 <?php
 
 require_once('../../path.php');
+require_once(ROOT_PATH . '/app/helpers/middleware.php');
+adminAjaxOnly();
 require_once(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/php_mail.php');
 

@@ -4,6 +4,10 @@ include(ROOT_PATH . '/app/db/db.php');
 require_once(ROOT_PATH . '/app/helpers/r2_helper.php');
 
 if (isset($_POST['add-bagian'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1]);
     unset($_POST['add-bagian']);
     $errors = [];
     $is_exist = [];
@@ -26,9 +30,9 @@ if (isset($_POST['add-bagian'])) {
         $add = create('jabatan', ['kd_bagian' => 'BGN-' . $unique_number, 'bagian' => $_POST['bagian']]);
 
 
-        $_SESSION['message'] = 'Berhasil Tambah Bagian';
+        $_SESSION['message'] = 'Bagian "' . $_POST['bagian'] . '" berhasil ditambahkan.';
         $_SESSION['type'] = 'success';
-        header('Location:' . BASE_URL . '/admin/struktur-organisasi/add-bagian.php');
+        header('Location:' . BASE_URL . '/admin/struktur-organisasi.php');
         exit();
     } else {
         $_SESSION['message'] = $errors['bagian'];
@@ -39,6 +43,10 @@ if (isset($_POST['add-bagian'])) {
 }
 
 if (isset($_POST['edit-bagian'])) {
+    // Aksi admin: wajib login & level yang sesuai (controller ini juga ter-include di halaman publik)
+    require_once(ROOT_PATH . '/app/helpers/middleware.php');
+    adminOnly();
+    adminLevel([1]);
     unset($_POST['edit-bagian']);
     $kd_bagian = $_POST['kd_bagian'];
 
@@ -71,9 +79,9 @@ if (isset($_POST['edit-bagian'])) {
         $edit = update('jabatan', $bgn['id'], ['bagian' => $_POST['bagian']]);
 
 
-        $_SESSION['message'] = 'Berhasil Update Bagian';
+        $_SESSION['message'] = 'Nama bagian berhasil diperbarui.';
         $_SESSION['type'] = 'success';
-        header('Location:' . BASE_URL . '/admin/struktur-organisasi/edit-bagian.php?id=' . $bgn['kd_bagian']);
+        header('Location:' . BASE_URL . '/admin/struktur-organisasi.php');
         exit();
     } else {
         $_SESSION['message'] = $errors['bagian'];
