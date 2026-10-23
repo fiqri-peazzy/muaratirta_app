@@ -2,8 +2,7 @@
 // Lapisan tema "Admin Console". Disisipkan tepat sebelum </head> di semua halaman admin,
 // sesudah CSS DeskApp supaya override-nya menang.
 $consoleCssVer = @filemtime(ROOT_PATH . '/admin/src/styles/console.css') ?: '1';
-$consoleJsVer = @filemtime(ROOT_PATH . '/admin/
-\\src/scripts/console.js') ?: '1';
+$consoleJsVer = @filemtime(ROOT_PATH . '/admin/src/scripts/console.js') ?: '1';
 ?>
 <meta name="theme-color" content="#0a1424" />
 <link rel="stylesheet" type="text/css" href="<?= BASE_URL ?>/admin/src/styles/console.css?v=<?= $consoleCssVer ?>" />
