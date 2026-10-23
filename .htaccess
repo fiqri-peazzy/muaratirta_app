@@ -13,6 +13,10 @@
 RewriteEngine On
 RewriteBase /
 # RewriteBase /muaratirta_app/
+
+# Larang eksekusi skrip di folder upload. Kalau ada webshell yang berhasil
+# tertanam (mis. via PHP2Shell atau upload berbahaya), tetap tidak bisa dipanggil.
+RewriteRule ^(assets|image|uploads)/.*\.(php[0-9]?|phtml|phar|pht|phps|cgi|pl|py|sh)$ - [F,NC,L]
 # Handle requests with any slug (without .php extension)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
